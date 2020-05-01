@@ -1,7 +1,6 @@
 use crate::event::{EventType, StoredEvent};
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Generation(u64);
 
 impl Default for Generation {
@@ -20,7 +19,15 @@ impl Generation {
     }
 }
 
+pub trait AggregateType {
+    fn aggregate_type(&self) -> &str;
+}
+
 pub trait AggregateState {
+    type Id;
+
+    fn aggregate_id(&self) -> &Self::Id;
+
     fn generation(&self) -> Generation;
 }
 
