@@ -1,7 +1,14 @@
 [package]
-name = "eventsourcing"
+name = "bento"
 version = "0.1.0"
 authors = ["haraldmaida"]
+license = "Apache-2.0"
+
+description = "Event sourcing framework for applications"
+
+keywords = ["event-sourcing", "cqrs", "aggregate"]
+categories = ["architecture", "pattern"]
+
 edition = "2018"
 
 [package.metadata.docs.rs]
