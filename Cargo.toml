@@ -1,0 +1,9 @@
+[package]
+name = "eventsourcing"
+version = "0.1.0"
+authors = ["haraldmaida"]
+edition = "2018"
+
+[package.metadata.docs.rs]
+all-features = true
+
