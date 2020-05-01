@@ -51,6 +51,54 @@ pub struct NewEvent<T> {
     pub metadata: HashMap<Key, Value>,
 }
 
+impl<T> From<T> for NewEvent<T> {
+    fn from(payload: T) -> Self {
+        Self::now_with(payload)
+    }
+}
+
+impl<T> NewEvent<T> {
+    pub fn new(timestamp: DateTime<Utc>, payload: T) -> Self {
+        Self {
+            timestamp,
+            payload,
+            metadata: HashMap::new(),
+        }
+    }
+
+    pub fn now_with(payload: T) -> Self {
+        Self {
+            timestamp: Utc::now(),
+            payload,
+            metadata: HashMap::new(),
+        }
+    }
+
+    pub fn with_metadata<M>(mut self, metadata: M) -> Self
+    where
+        M: IntoIterator<Item = (Key, Value)>,
+    {
+        self.metadata = HashMap::from_iter(metadata.into_iter());
+        self
+    }
+
+    pub fn unwrap(self) -> (T, HashMap<Key, Value>) {
+        (self.payload, self.metadata)
+    }
+
+    pub fn timestamp(&self) -> DateTime<Utc> {
+        self.timestamp
+    }
+
+    pub fn payload(&self) -> &T {
+        &self.payload
+    }
+
+    pub fn metadata(&self) -> &HashMap<Key, Value> {
+        &self.metadata
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StoredEvent<T> {
     pub sequence: Sequence,
