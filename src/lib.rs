@@ -13,12 +13,7 @@
     unused_qualifications
 )]
 
-mod aggregate;
-mod dispatch;
-mod event;
-mod store;
-
-pub use aggregate::*;
-pub use dispatch::*;
-pub use event::*;
-pub use store::*;
+pub mod aggregate;
+pub mod dispatch;
+pub mod event;
+pub mod store;
