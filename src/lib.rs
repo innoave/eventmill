@@ -19,4 +19,6 @@ mod event;
 mod store;
 
 pub use aggregate::*;
+pub use dispatch::*;
 pub use event::*;
+pub use store::*;
