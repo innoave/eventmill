@@ -2,7 +2,7 @@
 name = "eventmill"
 version = "0.1.0"
 authors = ["haraldmaida"]
-license = "Apache-2.0"
+license = "MIT/Apache-2.0"
 
 description = "Event sourcing framework for applications"
 
