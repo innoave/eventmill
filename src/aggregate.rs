@@ -20,7 +20,9 @@ impl Generation {
 }
 
 pub trait AggregateType {
-    fn aggregate_type(&self) -> &str;
+    fn aggregate_type(&self) -> &str {
+        std::any::type_name::<Self>()
+    }
 }
 
 pub trait WithAggregateId {
