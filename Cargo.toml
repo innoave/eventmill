@@ -1,5 +1,5 @@
 [package]
-name = "bento"
+name = "eventmill"
 version = "0.1.0"
 authors = ["haraldmaida"]
 license = "Apache-2.0"
