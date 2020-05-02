@@ -20,11 +20,13 @@ impl Generation {
 }
 
 pub trait AggregateType {
+    fn aggregate_type(&self) -> &str;
+}
+
+pub trait WithAggregateId {
     type Id;
 
     fn aggregate_id(&self) -> &Self::Id;
-
-    fn aggregate_type(&self) -> &str;
 }
 
 pub trait AggregateState {
