@@ -1,14 +1,18 @@
-use crate::{Generation, WithAggregateId};
+use crate::{DomainEvent, Generation, WithAggregateId};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::marker::PhantomData;
 
-pub trait HandleCommand<C> {
+pub trait HandleCommand<C, A>
+where
+    A: WithAggregateId,
+    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
+{
     type Event;
     type Error;
 
-    fn handle_command(&self, command: C) -> Result<Self::Event, Self::Error>;
+    fn handle_command(&self, command: C) -> Result<DomainEvent<Self::Event, A>, Self::Error>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

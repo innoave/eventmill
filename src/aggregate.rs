@@ -1,4 +1,5 @@
-use crate::{HandleCommand, StoredEvent};
+use crate::{DomainEvent, HandleCommand};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -40,11 +41,15 @@ pub trait AggregateState {
 pub trait Aggregate<E>
 where
     E: 'static,
-    Self: Sized,
+    Self: 'static + Sized + WithAggregateId,
+    <Self as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
-    fn apply_event(self, event: &StoredEvent<E>) -> Self;
+    fn apply_event(self, event: &DomainEvent<E, Self>) -> Self;
 
-    fn apply_all_events<'a>(self, events: impl IntoIterator<Item = &'a StoredEvent<E>>) -> Self {
+    fn apply_all_events<'a>(
+        self,
+        events: impl IntoIterator<Item = &'a DomainEvent<E, Self>>,
+    ) -> Self {
         events
             .into_iter()
             .fold(self, |acc_state, event| acc_state.apply_event(event))
@@ -87,27 +92,48 @@ impl<S> AggregateState for EventSourcedAggregate<S> {
     }
 }
 
+impl<S> WithAggregateId for EventSourcedAggregate<S>
+where
+    S: WithAggregateId,
+{
+    type Id = <S as WithAggregateId>::Id;
+
+    fn aggregate_id(&self) -> &Self::Id {
+        self.state.aggregate_id()
+    }
+}
+
 impl<E, S> Aggregate<E> for EventSourcedAggregate<S>
 where
-    E: 'static,
+    E: 'static + Clone,
     S: Aggregate<E>,
+    <Self as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
-    fn apply_event(self, event: &StoredEvent<E>) -> Self {
+    fn apply_event(self, event: &DomainEvent<E, Self>) -> Self {
+        let event = DomainEvent::new(
+            event.aggregate_id.clone(),
+            event.aggregate_generation,
+            event.sequence,
+            event.timestamp,
+            event.payload.clone(),
+        );
         Self {
             generation: self.generation.next(),
-            state: self.state.apply_event(event),
+            state: self.state.apply_event(&event),
         }
     }
 }
 
-impl<C, S> HandleCommand<C> for EventSourcedAggregate<S>
+impl<C, A, S> HandleCommand<C, A> for EventSourcedAggregate<S>
 where
-    S: HandleCommand<C>,
+    S: HandleCommand<C, A>,
+    A: WithAggregateId,
+    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
-    type Event = <S as HandleCommand<C>>::Event;
-    type Error = <S as HandleCommand<C>>::Error;
+    type Event = <S as HandleCommand<C, A>>::Event;
+    type Error = <S as HandleCommand<C, A>>::Error;
 
-    fn handle_command(&self, command: C) -> Result<Self::Event, Self::Error> {
+    fn handle_command(&self, command: C) -> Result<DomainEvent<Self::Event, A>, Self::Error> {
         self.state.handle_command(command)
     }
 }

@@ -63,6 +63,8 @@ where
     _aggregate: PhantomData<A>,
     pub aggregate_id: <A as WithAggregateId>::Id,
     pub aggregate_generation: Generation,
+    pub sequence: Sequence,
+    pub timestamp: DateTime<Utc>,
     pub payload: E,
     pub metadata: Metadata,
 }
@@ -72,40 +74,65 @@ where
     A: WithAggregateId,
     <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
-    pub fn new<M>(
+    pub fn new(
         aggregate_id: <A as WithAggregateId>::Id,
         aggregate_generation: Generation,
+        sequence: Sequence,
+        timestamp: DateTime<Utc>,
         payload: E,
-        metadata: M,
-    ) -> Self
-    where
-        M: IntoIterator<Item = (Key, Value)>,
-    {
+    ) -> Self {
         Self {
             _aggregate: PhantomData,
             aggregate_id,
             aggregate_generation,
+            sequence,
+            timestamp,
             payload,
-            metadata: Metadata::from_iter(metadata.into_iter()),
+            metadata: Metadata::new(),
         }
+    }
+
+    pub fn new_now(
+        aggregate_id: <A as WithAggregateId>::Id,
+        aggregate_generation: Generation,
+        sequence: Sequence,
+        payload: E,
+    ) -> Self {
+        Self {
+            _aggregate: PhantomData,
+            aggregate_id,
+            aggregate_generation,
+            sequence,
+            timestamp: Utc::now(),
+            payload,
+            metadata: Metadata::new(),
+        }
+    }
+
+    pub fn with_metadata<M>(mut self, metadata: M) -> Self
+    where
+        M: IntoIterator<Item = (Key, Value)>,
+    {
+        self.metadata = Metadata::from_iter(metadata.into_iter());
+        self
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct NewEvent<T> {
+pub struct NewEvent<E> {
     pub timestamp: DateTime<Utc>,
-    pub payload: T,
+    pub payload: E,
     pub metadata: Metadata,
 }
 
-impl<T> From<T> for NewEvent<T> {
-    fn from(payload: T) -> Self {
+impl<E> From<E> for NewEvent<E> {
+    fn from(payload: E) -> Self {
         Self::now_with(payload)
     }
 }
 
-impl<T> NewEvent<T> {
-    pub fn new(timestamp: DateTime<Utc>, payload: T) -> Self {
+impl<E> NewEvent<E> {
+    pub fn new(timestamp: DateTime<Utc>, payload: E) -> Self {
         Self {
             timestamp,
             payload,
@@ -113,7 +140,7 @@ impl<T> NewEvent<T> {
         }
     }
 
-    pub fn now_with(payload: T) -> Self {
+    pub fn now_with(payload: E) -> Self {
         Self {
             timestamp: Utc::now(),
             payload,
@@ -129,7 +156,7 @@ impl<T> NewEvent<T> {
         self
     }
 
-    pub fn unwrap(self) -> (T, Metadata) {
+    pub fn unwrap(self) -> (E, Metadata) {
         (self.payload, self.metadata)
     }
 
@@ -137,54 +164,7 @@ impl<T> NewEvent<T> {
         self.timestamp
     }
 
-    pub fn payload(&self) -> &T {
-        &self.payload
-    }
-
-    pub fn metadata(&self) -> &Metadata {
-        &self.metadata
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct StoredEvent<T> {
-    pub sequence: Sequence,
-    pub timestamp: DateTime<Utc>,
-    pub payload: T,
-    pub metadata: Metadata,
-}
-
-impl<T> StoredEvent<T> {
-    pub fn new(sequence: Sequence, timestamp: DateTime<Utc>, payload: T) -> Self {
-        Self {
-            sequence,
-            timestamp,
-            payload,
-            metadata: Metadata::new(),
-        }
-    }
-
-    pub fn with_metadata<M>(mut self, metadata: M) -> Self
-    where
-        M: IntoIterator<Item = (Key, Value)>,
-    {
-        self.metadata = Metadata::from_iter(metadata.into_iter());
-        self
-    }
-
-    pub fn unwrap(self) -> (T, Metadata) {
-        (self.payload, self.metadata)
-    }
-
-    pub fn sequence(&self) -> Sequence {
-        self.sequence
-    }
-
-    pub fn timestamp(&self) -> DateTime<Utc> {
-        self.timestamp
-    }
-
-    pub fn payload(&self) -> &T {
+    pub fn payload(&self) -> &E {
         &self.payload
     }
 
