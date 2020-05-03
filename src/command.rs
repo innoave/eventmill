@@ -12,7 +12,7 @@ where
     type Event;
     type Error;
 
-    fn handle_command(&self, command: C) -> Result<DomainEvent<Self::Event, A>, Self::Error>;
+    fn handle_command(&self, command: C) -> Result<Vec<DomainEvent<Self::Event, A>>, Self::Error>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
