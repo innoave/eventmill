@@ -33,6 +33,10 @@ pub struct Attribute {
     pub value: Value,
 }
 
+pub trait Attributes: IntoIterator<Item = (Key, Value)> {}
+
+impl<T> Attributes for T where T: IntoIterator<Item = (Key, Value)> {}
+
 pub type Metadata = HashMap<Key, Value>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
