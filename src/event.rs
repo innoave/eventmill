@@ -117,6 +117,18 @@ where
     pub fn metadata(&self) -> &Metadata {
         &self.metadata
     }
+
+    pub fn transmute<U>(&self, another_payload: U) -> DomainEvent<U, A> {
+        DomainEvent {
+            _aggregate_type: self._aggregate_type,
+            aggregate_id: self.aggregate_id.clone(),
+            aggregate_generation: self.aggregate_generation,
+            sequence: self.sequence,
+            time: self.time,
+            payload: another_payload,
+            metadata: self.metadata.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
