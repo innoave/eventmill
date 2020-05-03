@@ -1,5 +1,5 @@
 use crate::{Generation, WithAggregateId};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -23,6 +23,8 @@ pub enum Value {
     Float(f32),
     Double(f64),
     Boolean(bool),
+    Date(NaiveDate),
+    DateTime(DateTime<Utc>),
     List(Vec<Value>),
     Map(HashMap<String, Value>),
 }
