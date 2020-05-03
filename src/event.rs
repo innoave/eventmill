@@ -1,8 +1,8 @@
+use crate::metadata::{Key, Metadata, Value};
 use crate::{Generation, WithAggregateId};
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, Utc};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter::FromIterator;
 use std::marker::PhantomData;
@@ -12,34 +12,6 @@ pub trait EventType {
     fn event_type(&self) -> &str;
     fn event_source(&self) -> &str;
 }
-
-pub type Key = String;
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Value {
-    String(String),
-    Integer(i32),
-    Long(i64),
-    Float(f32),
-    Double(f64),
-    Boolean(bool),
-    Date(NaiveDate),
-    DateTime(DateTime<Utc>),
-    List(Vec<Value>),
-    Map(HashMap<String, Value>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Attribute {
-    pub key: Key,
-    pub value: Value,
-}
-
-pub trait Attributes: IntoIterator<Item = (Key, Value)> {}
-
-impl<T> Attributes for T where T: IntoIterator<Item = (Key, Value)> {}
-
-pub type Metadata = HashMap<Key, Value>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Sequence(u64);
