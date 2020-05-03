@@ -1,6 +1,8 @@
-use crate::event::{EventType, StoredEvent};
+use crate::{HandleCommand, StoredEvent};
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Generation(u64);
 
 impl Default for Generation {
@@ -35,21 +37,14 @@ pub trait AggregateState {
     fn generation(&self) -> Generation;
 }
 
-pub trait Aggregate<C>
+pub trait Aggregate<E>
 where
+    E: 'static,
     Self: Sized,
 {
-    type Event: 'static + EventType;
-    type Error;
+    fn apply_event(self, event: &StoredEvent<E>) -> Self;
 
-    fn handle_command(&self, command: C) -> Result<Self::Event, Self::Error>;
-
-    fn apply_event(self, event: &StoredEvent<Self::Event>) -> Self;
-
-    fn apply_all_events<'a>(
-        self,
-        events: impl IntoIterator<Item = &'a StoredEvent<Self::Event>>,
-    ) -> Self {
+    fn apply_all_events<'a>(self, events: impl IntoIterator<Item = &'a StoredEvent<E>>) -> Self {
         events
             .into_iter()
             .fold(self, |acc_state, event| acc_state.apply_event(event))
@@ -92,21 +87,27 @@ impl<S> AggregateState for EventSourcedAggregate<S> {
     }
 }
 
-impl<C, S> Aggregate<C> for EventSourcedAggregate<S>
+impl<E, S> Aggregate<E> for EventSourcedAggregate<S>
 where
-    S: Aggregate<C>,
+    E: 'static,
+    S: Aggregate<E>,
 {
-    type Event = <S as Aggregate<C>>::Event;
-    type Error = <S as Aggregate<C>>::Error;
-
-    fn handle_command(&self, command: C) -> Result<Self::Event, Self::Error> {
-        self.state.handle_command(command)
-    }
-
-    fn apply_event(self, event: &StoredEvent<Self::Event>) -> Self {
+    fn apply_event(self, event: &StoredEvent<E>) -> Self {
         Self {
             generation: self.generation.next(),
             state: self.state.apply_event(event),
         }
+    }
+}
+
+impl<C, S> HandleCommand<C> for EventSourcedAggregate<S>
+where
+    S: HandleCommand<C>,
+{
+    type Event = <S as HandleCommand<C>>::Event;
+    type Error = <S as HandleCommand<C>>::Error;
+
+    fn handle_command(&self, command: C) -> Result<Self::Event, Self::Error> {
+        self.state.handle_command(command)
     }
 }

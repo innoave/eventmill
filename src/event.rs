@@ -1,7 +1,11 @@
+use crate::{Generation, WithAggregateId};
 use chrono::{DateTime, Utc};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::iter::FromIterator;
+use std::marker::PhantomData;
 
 pub trait EventType {
     fn event_type_version(&self) -> &str;
@@ -29,6 +33,8 @@ pub struct Attribute {
     pub value: Value,
 }
 
+pub type Metadata = HashMap<Key, Value>;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Sequence(u64);
 
@@ -45,10 +51,47 @@ impl Sequence {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DomainEvent<E, A>
+where
+    A: WithAggregateId,
+    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
+{
+    _aggregate: PhantomData<A>,
+    pub aggregate_id: <A as WithAggregateId>::Id,
+    pub aggregate_generation: Generation,
+    pub payload: E,
+    pub metadata: Metadata,
+}
+
+impl<E, A> DomainEvent<E, A>
+where
+    A: WithAggregateId,
+    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
+{
+    pub fn new<M>(
+        aggregate_id: <A as WithAggregateId>::Id,
+        aggregate_generation: Generation,
+        payload: E,
+        metadata: M,
+    ) -> Self
+    where
+        M: IntoIterator<Item = (Key, Value)>,
+    {
+        Self {
+            _aggregate: PhantomData,
+            aggregate_id,
+            aggregate_generation,
+            payload,
+            metadata: Metadata::from_iter(metadata.into_iter()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NewEvent<T> {
     pub timestamp: DateTime<Utc>,
     pub payload: T,
-    pub metadata: HashMap<Key, Value>,
+    pub metadata: Metadata,
 }
 
 impl<T> From<T> for NewEvent<T> {
@@ -62,7 +105,7 @@ impl<T> NewEvent<T> {
         Self {
             timestamp,
             payload,
-            metadata: HashMap::new(),
+            metadata: Metadata::new(),
         }
     }
 
@@ -70,7 +113,7 @@ impl<T> NewEvent<T> {
         Self {
             timestamp: Utc::now(),
             payload,
-            metadata: HashMap::new(),
+            metadata: Metadata::new(),
         }
     }
 
@@ -78,11 +121,11 @@ impl<T> NewEvent<T> {
     where
         M: IntoIterator<Item = (Key, Value)>,
     {
-        self.metadata = HashMap::from_iter(metadata.into_iter());
+        self.metadata = Metadata::from_iter(metadata.into_iter());
         self
     }
 
-    pub fn unwrap(self) -> (T, HashMap<Key, Value>) {
+    pub fn unwrap(self) -> (T, Metadata) {
         (self.payload, self.metadata)
     }
 
@@ -94,7 +137,7 @@ impl<T> NewEvent<T> {
         &self.payload
     }
 
-    pub fn metadata(&self) -> &HashMap<Key, Value> {
+    pub fn metadata(&self) -> &Metadata {
         &self.metadata
     }
 }
@@ -104,7 +147,7 @@ pub struct StoredEvent<T> {
     pub sequence: Sequence,
     pub timestamp: DateTime<Utc>,
     pub payload: T,
-    pub metadata: HashMap<Key, Value>,
+    pub metadata: Metadata,
 }
 
 impl<T> StoredEvent<T> {
@@ -113,7 +156,7 @@ impl<T> StoredEvent<T> {
             sequence,
             timestamp,
             payload,
-            metadata: HashMap::new(),
+            metadata: Metadata::new(),
         }
     }
 
@@ -121,11 +164,11 @@ impl<T> StoredEvent<T> {
     where
         M: IntoIterator<Item = (Key, Value)>,
     {
-        self.metadata = HashMap::from_iter(metadata.into_iter());
+        self.metadata = Metadata::from_iter(metadata.into_iter());
         self
     }
 
-    pub fn unwrap(self) -> (T, HashMap<Key, Value>) {
+    pub fn unwrap(self) -> (T, Metadata) {
         (self.payload, self.metadata)
     }
 
@@ -141,7 +184,7 @@ impl<T> StoredEvent<T> {
         &self.payload
     }
 
-    pub fn metadata(&self) -> &HashMap<Key, Value> {
+    pub fn metadata(&self) -> &Metadata {
         &self.metadata
     }
 }

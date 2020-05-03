@@ -14,11 +14,13 @@
 )]
 
 mod aggregate;
+mod command;
 mod dispatch;
 mod event;
 mod store;
 
 pub use aggregate::*;
+pub use command::*;
 pub use dispatch::*;
 pub use event::*;
 pub use store::*;
