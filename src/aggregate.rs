@@ -1,4 +1,4 @@
-use crate::{DomainEvent, HandleCommand};
+use crate::{DomainEvent, HandleCommand, NewEvent};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -17,7 +17,7 @@ impl Generation {
         self.0
     }
 
-    pub fn next(self) -> Self {
+    pub fn next_value(self) -> Self {
         Self(self.0 + 1)
     }
 }
@@ -29,10 +29,12 @@ pub trait AggregateType {
 }
 
 pub trait WithAggregateId {
-    type Id;
+    type Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned;
 
     fn aggregate_id(&self) -> &Self::Id;
 }
+
+pub type AggregateId<A> = <A as WithAggregateId>::Id;
 
 pub trait AggregateState {
     fn generation(&self) -> Generation;
@@ -42,7 +44,6 @@ pub trait Aggregate<E>
 where
     E: 'static,
     Self: 'static + Sized + WithAggregateId,
-    <Self as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
     fn apply_event(self, event: &DomainEvent<E, Self>) -> Self;
 
@@ -107,7 +108,6 @@ impl<E, S> Aggregate<E> for EventSourcedAggregate<S>
 where
     E: 'static + Clone,
     S: Aggregate<E>,
-    <Self as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
     fn apply_event(self, event: &DomainEvent<E, Self>) -> Self {
         let event = DomainEvent::new(
@@ -118,7 +118,7 @@ where
             event.payload.clone(),
         );
         Self {
-            generation: self.generation.next(),
+            generation: self.generation.next_value(),
             state: self.state.apply_event(&event),
         }
     }
@@ -128,12 +128,11 @@ impl<C, A, S> HandleCommand<C, A> for EventSourcedAggregate<S>
 where
     S: HandleCommand<C, A>,
     A: WithAggregateId,
-    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
     type Event = <S as HandleCommand<C, A>>::Event;
     type Error = <S as HandleCommand<C, A>>::Error;
 
-    fn handle_command(&self, command: C) -> Result<Vec<DomainEvent<Self::Event, A>>, Self::Error> {
+    fn handle_command(&self, command: C) -> Result<Vec<NewEvent<Self::Event, A>>, Self::Error> {
         self.state.handle_command(command)
     }
 }

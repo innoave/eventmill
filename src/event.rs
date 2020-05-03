@@ -1,7 +1,6 @@
 use crate::metadata::{Key, Metadata, Value};
-use crate::{Generation, WithAggregateId};
+use crate::{AggregateId, Generation, WithAggregateId};
 use chrono::{DateTime, Utc};
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::iter::FromIterator;
@@ -18,7 +17,7 @@ pub struct Sequence(u64);
 
 impl Default for Sequence {
     fn default() -> Self {
-        Self(0)
+        Self(1)
     }
 }
 
@@ -26,16 +25,19 @@ impl Sequence {
     pub fn number(self) -> u64 {
         self.0
     }
+
+    pub fn next_value(&mut self) -> Self {
+        Self(self.0 + 1)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DomainEvent<E, A>
 where
     A: WithAggregateId,
-    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
-    _aggregate: PhantomData<A>,
-    pub aggregate_id: <A as WithAggregateId>::Id,
+    _aggregate_type: PhantomData<A>,
+    pub aggregate_id: AggregateId<A>,
     pub aggregate_generation: Generation,
     pub sequence: Sequence,
     pub time: DateTime<Utc>,
@@ -46,17 +48,16 @@ where
 impl<E, A> DomainEvent<E, A>
 where
     A: WithAggregateId,
-    <A as WithAggregateId>::Id: Debug + Clone + PartialEq + Serialize + DeserializeOwned,
 {
     pub fn new(
-        aggregate_id: <A as WithAggregateId>::Id,
+        aggregate_id: AggregateId<A>,
         aggregate_generation: Generation,
         sequence: Sequence,
         time: DateTime<Utc>,
         payload: E,
     ) -> Self {
         Self {
-            _aggregate: PhantomData,
+            _aggregate_type: PhantomData,
             aggregate_id,
             aggregate_generation,
             sequence,
@@ -67,20 +68,18 @@ where
     }
 
     pub fn new_now(
-        aggregate_id: <A as WithAggregateId>::Id,
+        aggregate_id: AggregateId<A>,
         aggregate_generation: Generation,
         sequence: Sequence,
         payload: E,
     ) -> Self {
-        Self {
-            _aggregate: PhantomData,
+        Self::new(
             aggregate_id,
             aggregate_generation,
             sequence,
-            time: Utc::now(),
+            Utc::now(),
             payload,
-            metadata: Metadata::new(),
-        }
+        )
     }
 
     pub fn with_metadata<M>(mut self, metadata: M) -> Self
@@ -95,7 +94,7 @@ where
         (self.payload, self.metadata)
     }
 
-    pub fn aggregate_id(&self) -> &<A as WithAggregateId>::Id {
+    pub fn aggregate_id(&self) -> &AggregateId<A> {
         &self.aggregate_id
     }
 
@@ -121,33 +120,42 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct NewEvent<E> {
+pub struct NewEvent<E, A>
+where
+    A: WithAggregateId,
+{
+    _aggregate_type: PhantomData<A>,
+    pub aggregate_id: AggregateId<A>,
     pub time: DateTime<Utc>,
     pub payload: E,
     pub metadata: Metadata,
 }
 
-impl<E> From<E> for NewEvent<E> {
-    fn from(payload: E) -> Self {
-        Self::now_with(payload)
+impl<E, A> From<(AggregateId<A>, E)> for NewEvent<E, A>
+where
+    A: WithAggregateId,
+{
+    fn from((aggregate_id, payload): (AggregateId<A>, E)) -> Self {
+        Self::new_now(aggregate_id, payload)
     }
 }
 
-impl<E> NewEvent<E> {
-    pub fn new(time: DateTime<Utc>, payload: E) -> Self {
+impl<E, A> NewEvent<E, A>
+where
+    A: WithAggregateId,
+{
+    pub fn new(aggregate_id: AggregateId<A>, time: DateTime<Utc>, payload: E) -> Self {
         Self {
+            _aggregate_type: PhantomData,
+            aggregate_id,
             time,
             payload,
             metadata: Metadata::new(),
         }
     }
 
-    pub fn now_with(payload: E) -> Self {
-        Self {
-            time: Utc::now(),
-            payload,
-            metadata: Metadata::new(),
-        }
+    pub fn new_now(aggregate_id: AggregateId<A>, payload: E) -> Self {
+        Self::new(aggregate_id, Utc::now(), payload)
     }
 
     pub fn with_metadata<M>(mut self, metadata: M) -> Self
@@ -160,6 +168,10 @@ impl<E> NewEvent<E> {
 
     pub fn unwrap(self) -> (E, Metadata) {
         (self.payload, self.metadata)
+    }
+
+    pub fn aggregate_id(&self) -> &AggregateId<A> {
+        &self.aggregate_id
     }
 
     pub fn time(&self) -> DateTime<Utc> {
