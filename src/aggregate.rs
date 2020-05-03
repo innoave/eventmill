@@ -114,7 +114,7 @@ where
             event.aggregate_id.clone(),
             event.aggregate_generation,
             event.sequence,
-            event.timestamp,
+            event.time,
             event.payload.clone(),
         );
         Self {
