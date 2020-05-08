@@ -17,9 +17,11 @@ mod aggregate;
 mod command;
 mod dispatch;
 mod event;
+pub mod inmemory_store;
 mod metadata;
 mod query;
 mod store;
+pub mod test_support;
 
 pub use aggregate::*;
 pub use command::*;

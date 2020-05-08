@@ -8,15 +8,20 @@ where
 {
     type Error;
 
-    fn append(&self, event: DomainEvent<E, A>, stream: &str) -> Result<(), Self::Error>;
+    fn append(&self, topic: impl Into<String>, event: DomainEvent<E, A>)
+        -> Result<(), Self::Error>;
 
-    fn append_all(&self, events: Vec<DomainEvent<E, A>>) -> Result<(), Self::Error>;
+    fn append_batch(
+        &self,
+        topic: impl Into<String>,
+        events: impl IntoIterator<Item = DomainEvent<E, A>>,
+    ) -> Result<(), Self::Error>;
 }
 
-pub trait EventSource {
+pub trait EventSource<E, A> {
     type Error;
 
-    fn read_events<E, A, R>(&self, stream: &str, subscriber: R) -> Result<(), Self::Error>
+    fn read_events<R>(&self, topic: &str, subscriber: &mut R) -> Result<(), Self::Error>
     where
         E: EventType,
         A: WithAggregateId,
