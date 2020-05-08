@@ -1,12 +1,24 @@
+use crate::query::ReceiveEvent;
 use crate::{DomainEvent, EventType, WithAggregateId};
 
-pub trait EventStore<A>
+pub trait EventSink<E, A>
 where
+    E: EventType,
     A: WithAggregateId,
 {
     type Error;
 
-    fn append<E>(&mut self, event: DomainEvent<E, A>, stream: &str) -> Result<(), Self::Error>
+    fn append(&self, event: DomainEvent<E, A>, stream: &str) -> Result<(), Self::Error>;
+
+    fn append_all(&self, events: Vec<DomainEvent<E, A>>) -> Result<(), Self::Error>;
+}
+
+pub trait EventSource {
+    type Error;
+
+    fn read_events<E, A, R>(&self, stream: &str, subscriber: R) -> Result<(), Self::Error>
     where
-        E: EventType;
+        E: EventType,
+        A: WithAggregateId,
+        R: ReceiveEvent<E, A>;
 }

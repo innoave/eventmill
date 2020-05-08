@@ -1,4 +1,4 @@
-use crate::{AggregateId, Generation, NewEvent, WithAggregateId};
+use crate::{AggregateIdOf, Generation, NewEvent, WithAggregateId};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::marker::PhantomData;
@@ -19,7 +19,7 @@ where
     A: WithAggregateId,
 {
     _aggregate: PhantomData<A>,
-    pub aggregate_id: AggregateId<A>,
+    pub aggregate_id: AggregateIdOf<A>,
     pub aggregate_generation: Generation,
     pub payload: C,
 }
@@ -28,7 +28,11 @@ impl<C, A> DomainCommand<C, A>
 where
     A: WithAggregateId,
 {
-    pub fn new(aggregate_id: AggregateId<A>, aggregate_generation: Generation, payload: C) -> Self {
+    pub fn new(
+        aggregate_id: AggregateIdOf<A>,
+        aggregate_generation: Generation,
+        payload: C,
+    ) -> Self {
         Self {
             _aggregate: PhantomData,
             aggregate_id,

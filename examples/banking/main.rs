@@ -5,7 +5,7 @@ use eventmill::{
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 
-const EVENT_NAMESPACE: &str = "event://github.com/innoave/eventmill/examples/banking";
+const EVENT_NAMESPACE: &str = "https://github.com/innoave/eventmill/examples/banking";
 
 //
 // Domain Events
@@ -96,7 +96,7 @@ impl EventType for MoneyTransferred {
 // Aggregates
 //
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct BankAccount {
     account_code: String,
     credit_limit: BigDecimal,
@@ -114,21 +114,19 @@ impl WithAggregateId for BankAccount {
 }
 
 impl Aggregate<MoneyDeposited> for BankAccount {
-    fn apply_event(mut self, event: &DomainEvent<MoneyDeposited, Self>) -> Self {
+    fn apply_event(&mut self, event: &DomainEvent<MoneyDeposited, Self>) {
         self.balance += event.payload.amount.clone();
-        self
     }
 }
 
 impl Aggregate<MoneyWithdrawn> for BankAccount {
-    fn apply_event(mut self, event: &DomainEvent<MoneyWithdrawn, Self>) -> Self {
+    fn apply_event(&mut self, event: &DomainEvent<MoneyWithdrawn, Self>) {
         self.balance -= event.payload.amount.clone();
-        self
     }
 }
 
 impl Aggregate<MoneyTransferred> for BankAccount {
-    fn apply_event(self, event: &DomainEvent<MoneyTransferred, Self>) -> Self {
+    fn apply_event(&mut self, event: &DomainEvent<MoneyTransferred, Self>) {
         match &event.payload {
             MoneyTransferred::Credit(money_withdrawn) => {
                 self.apply_event(&event.transmute(money_withdrawn.clone()))
@@ -144,6 +142,7 @@ impl Aggregate<MoneyTransferred> for BankAccount {
 // Commands
 //
 
+#[derive(Debug, PartialEq)]
 enum BankAccountError {
     BalanceBelowLimit,
 }
@@ -275,4 +274,57 @@ impl HandleCommand<TransferMoney, BankAccount> for (BankAccount, BankAccount) {
     }
 }
 
-fn main() {}
+fn main() -> Result<(), BankAccountError> {
+    let mut bank_account = BankAccount {
+        account_code: "0815".to_string(),
+        credit_limit: (-8000).into(),
+        balance: 400.into(),
+    };
+
+    println!("initial state: {:#?}", bank_account);
+
+    let deposit = DepositCash {
+        account_code: "0815".to_string(),
+        amount: 120.50.into(),
+    };
+
+    println!("handling first command: {:#?}", deposit);
+
+    let first_events = bank_account.handle_command(deposit).unwrap();
+    assert_eq!(first_events.len(), 1);
+
+    println!("|-> generated one event: {:#?}", first_events);
+
+    bank_account.apply_event(&first_events[0]);
+
+    println!("state after applying those events: {:#?}", bank_account);
+
+    let another_bank_account = BankAccount {
+        account_code: "4711".to_string(),
+        credit_limit: 0.into(),
+        balance: 0.into(),
+    };
+
+    let transfer = TransferMoney {
+        creditor_account_code: "0815".to_string(),
+        debitor_account_code: "4711".to_string(),
+        amount: 300.into(),
+    };
+
+    let transfer_events = (bank_account, another_bank_account).handle_command(transfer)?;
+    bank_account.apply_all_events(&transfer_events);
+
+    let withdraw = WithdrawCash {
+        account_code: "0815".to_string(),
+        amount: 221.into(),
+    };
+
+    println!("next withdraw command: {:#?}", withdraw);
+
+    let withdraw_result = bank_account.handle_command(withdraw);
+    assert_eq!(withdraw_result, Err(BankAccountError::BalanceBelowLimit));
+
+    println!("|-> results in error: {:#?}", withdraw_result);
+
+    Ok(())
+}

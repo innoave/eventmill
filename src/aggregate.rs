@@ -23,7 +23,7 @@ impl Generation {
 }
 
 pub trait AggregateType {
-    fn aggregate_type(&self) -> &str {
+    fn aggregate_type() -> &'static str {
         std::any::type_name::<Self>()
     }
 }
@@ -34,7 +34,7 @@ pub trait WithAggregateId {
     fn aggregate_id(&self) -> &Self::Id;
 }
 
-pub type AggregateId<A> = <A as WithAggregateId>::Id;
+pub type AggregateIdOf<A> = <A as WithAggregateId>::Id;
 
 pub trait AggregateState {
     fn generation(&self) -> Generation;
@@ -45,15 +45,10 @@ where
     E: 'static,
     Self: 'static + Sized + WithAggregateId,
 {
-    fn apply_event(self, event: &DomainEvent<E, Self>) -> Self;
+    fn apply_event(&mut self, event: &DomainEvent<E, Self>);
 
-    fn apply_all_events<'a>(
-        self,
-        events: impl IntoIterator<Item = &'a DomainEvent<E, Self>>,
-    ) -> Self {
-        events
-            .into_iter()
-            .fold(self, |acc_state, event| acc_state.apply_event(event))
+    fn apply_all_events<'a>(&mut self, events: impl IntoIterator<Item = &'a DomainEvent<E, Self>>) {
+        events.into_iter().for_each(|e| self.apply_event(e))
     }
 }
 
@@ -107,20 +102,17 @@ where
 impl<E, S> Aggregate<E> for EventSourcedAggregate<S>
 where
     E: 'static + Clone,
-    S: Aggregate<E>,
+    S: Aggregate<E> + AggregateType,
 {
-    fn apply_event(self, event: &DomainEvent<E, Self>) -> Self {
+    fn apply_event(&mut self, event: &DomainEvent<E, Self>) {
         let event = DomainEvent::new(
             event.aggregate_id.clone(),
-            event.aggregate_generation,
             event.sequence,
             event.time,
             event.payload.clone(),
         );
-        Self {
-            generation: self.generation.next_value(),
-            state: self.state.apply_event(&event),
-        }
+        self.state.apply_event(&event);
+        self.generation = self.generation.next_value();
     }
 }
 
