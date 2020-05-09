@@ -3,6 +3,7 @@ use crate::{
     EventType, Generation, HandleCommand, InitializeAggregate, Sequence, VersionedAggregate,
     WithAggregateId,
 };
+use serde::{Deserialize, Serialize};
 
 pub trait DispatchEvent<E, A>
 where
@@ -23,7 +24,7 @@ pub trait DispatchCommand<C, A> {
     ) -> Result<VersionedAggregate<A>, Self::Error>;
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum CoreError<R, W, H> {
     ReplayAggregateFailed(R),
     AppendEventsFailed(W),
