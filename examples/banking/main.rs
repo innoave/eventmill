@@ -1,6 +1,7 @@
 use bigdecimal::BigDecimal;
 use eventmill::{
-    Aggregate, AggregateType, DomainEvent, EventType, HandleCommand, NewEvent, WithAggregateId,
+    wrap_events, Aggregate, AggregateType, DomainEvent, EventType, HandleCommand, NewEvent,
+    Sequence, WithAggregateId,
 };
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
@@ -157,6 +158,7 @@ struct CreateAccount {
 impl HandleCommand<CreateAccount, BankAccount> for () {
     type Event = AccountCreated;
     type Error = BankAccountError;
+    type Context = ();
 
     fn handle_command(
         &self,
@@ -165,6 +167,7 @@ impl HandleCommand<CreateAccount, BankAccount> for () {
             owner,
             credit_limit,
         }: CreateAccount,
+        _context: &Self::Context,
     ) -> Result<Vec<NewEvent<Self::Event, BankAccount>>, Self::Error> {
         let account_created = AccountCreated {
             account_code: account_code.clone(),
@@ -184,6 +187,7 @@ struct DepositCash {
 impl HandleCommand<DepositCash, BankAccount> for BankAccount {
     type Event = MoneyDeposited;
     type Error = Infallible;
+    type Context = ();
 
     fn handle_command(
         &self,
@@ -191,6 +195,7 @@ impl HandleCommand<DepositCash, BankAccount> for BankAccount {
             account_code,
             amount,
         }: DepositCash,
+        _context: &Self::Context,
     ) -> Result<Vec<NewEvent<Self::Event, BankAccount>>, Self::Error> {
         let money_deposited = MoneyDeposited {
             account_code: account_code.clone(),
@@ -209,6 +214,7 @@ struct WithdrawCash {
 impl HandleCommand<WithdrawCash, BankAccount> for BankAccount {
     type Event = MoneyWithdrawn;
     type Error = BankAccountError;
+    type Context = ();
 
     fn handle_command(
         &self,
@@ -216,6 +222,7 @@ impl HandleCommand<WithdrawCash, BankAccount> for BankAccount {
             account_code,
             amount,
         }: WithdrawCash,
+        _context: &Self::Context,
     ) -> Result<Vec<NewEvent<Self::Event, BankAccount>>, Self::Error> {
         if &self.balance - &amount < self.credit_limit {
             Err(BankAccountError::BalanceBelowLimit)
@@ -239,6 +246,7 @@ struct TransferMoney {
 impl HandleCommand<TransferMoney, BankAccount> for (BankAccount, BankAccount) {
     type Event = MoneyTransferred;
     type Error = BankAccountError;
+    type Context = ();
 
     fn handle_command(
         &self,
@@ -247,6 +255,7 @@ impl HandleCommand<TransferMoney, BankAccount> for (BankAccount, BankAccount) {
             debitor_account_code,
             amount,
         }: TransferMoney,
+        _context: &Self::Context,
     ) -> Result<Vec<NewEvent<Self::Event, BankAccount>>, Self::Error> {
         let (creditor_account, _debitor_account) = if self.0.account_code == creditor_account_code {
             (&self.0, &self.1)
@@ -275,6 +284,8 @@ impl HandleCommand<TransferMoney, BankAccount> for (BankAccount, BankAccount) {
 }
 
 fn main() -> Result<(), BankAccountError> {
+    let mut current_sequence = Sequence::default();
+
     let mut bank_account = BankAccount {
         account_code: "0815".to_string(),
         credit_limit: (-8000).into(),
@@ -290,12 +301,13 @@ fn main() -> Result<(), BankAccountError> {
 
     println!("handling first command: {:#?}", deposit);
 
-    let first_events = bank_account.handle_command(deposit).unwrap();
+    let first_events = bank_account.handle_command(deposit, &()).unwrap();
     assert_eq!(first_events.len(), 1);
 
     println!("|-> generated one event: {:#?}", first_events);
 
-    bank_account.apply_event(&first_events[0]);
+    let first_events = wrap_events(&mut current_sequence, first_events).collect::<Vec<_>>();
+    bank_account.apply_all_events(&first_events);
 
     println!("state after applying those events: {:#?}", bank_account);
 
@@ -311,8 +323,14 @@ fn main() -> Result<(), BankAccountError> {
         amount: 300.into(),
     };
 
-    let transfer_events = (bank_account, another_bank_account).handle_command(transfer)?;
-    bank_account.apply_all_events(&transfer_events);
+    let aggregate = (bank_account, another_bank_account);
+    let transfer_events = aggregate.handle_command(transfer, &())?;
+    assert_eq!(transfer_events.len(), 2);
+
+    let (mut bank_account, _another_bank_account) = aggregate;
+
+    let transfer_events = wrap_events(&mut current_sequence, transfer_events).collect::<Vec<_>>();
+    bank_account.apply_event(&transfer_events[0]);
 
     let withdraw = WithdrawCash {
         account_code: "0815".to_string(),
@@ -321,7 +339,7 @@ fn main() -> Result<(), BankAccountError> {
 
     println!("next withdraw command: {:#?}", withdraw);
 
-    let withdraw_result = bank_account.handle_command(withdraw);
+    let withdraw_result = bank_account.handle_command(withdraw, &());
     assert_eq!(withdraw_result, Err(BankAccountError::BalanceBelowLimit));
 
     println!("|-> results in error: {:#?}", withdraw_result);

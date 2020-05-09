@@ -1,10 +1,9 @@
 use crate::metadata::{Key, Metadata, Value};
-use crate::{AggregateIdOf, AggregateType, WithAggregateId};
+use crate::{AggregateIdOf, AggregateType, Generation, WithAggregateId};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::iter::FromIterator;
-use std::marker::PhantomData;
 
 pub trait EventType {
     fn event_type_version(&self) -> &str;
@@ -27,7 +26,14 @@ impl Sequence {
     }
 
     pub fn next_value(&mut self) -> Self {
-        Self(self.0 + 1)
+        self.0 += 1;
+        Self(self.0)
+    }
+}
+
+impl From<Generation> for Sequence {
+    fn from(generation: Generation) -> Self {
+        Self(generation.number())
     }
 }
 
@@ -36,7 +42,6 @@ pub struct DomainEvent<E, A>
 where
     A: WithAggregateId,
 {
-    _aggregate_type: PhantomData<A>,
     pub aggregate_id: AggregateIdOf<A>,
     pub sequence: Sequence,
     pub time: DateTime<Utc>,
@@ -55,7 +60,6 @@ where
         payload: E,
     ) -> Self {
         Self {
-            _aggregate_type: PhantomData,
             aggregate_id,
             sequence,
             time,
@@ -106,7 +110,6 @@ where
 
     pub fn transmute<U>(&self, another_payload: U) -> DomainEvent<U, A> {
         DomainEvent {
-            _aggregate_type: self._aggregate_type,
             aggregate_id: self.aggregate_id.clone(),
             sequence: self.sequence,
             time: self.time,
@@ -130,7 +133,10 @@ where
     A: WithAggregateId,
 {
     fn from((aggregate_id, payload): (AggregateIdOf<A>, E)) -> Self {
-        Self::new(aggregate_id, payload)
+        Self {
+            aggregate_id,
+            payload,
+        }
     }
 }
 
@@ -156,4 +162,51 @@ where
     pub fn payload(&self) -> &E {
         &self.payload
     }
+}
+
+pub fn wrap_events<'a, E, A>(
+    current_sequence: &'a mut Sequence,
+    events: impl IntoIterator<Item = NewEvent<E, A>> + 'a,
+) -> impl Iterator<Item = DomainEvent<E, A>> + 'a
+where
+    A: WithAggregateId,
+{
+    events.into_iter().map(
+        move |NewEvent {
+                  aggregate_id,
+                  payload,
+              }| {
+            DomainEvent {
+                aggregate_id,
+                sequence: current_sequence.next_value(),
+                time: Utc::now(),
+                payload,
+                metadata: Default::default(),
+            }
+        },
+    )
+}
+
+pub fn wrap_events_with_metadata<'a, E, A>(
+    current_sequence: &'a mut Sequence,
+    events: impl IntoIterator<Item = NewEvent<E, A>> + 'a,
+    metadata: &'a Metadata,
+) -> impl Iterator<Item = DomainEvent<E, A>> + 'a
+where
+    A: WithAggregateId,
+{
+    events.into_iter().map(
+        move |NewEvent {
+                  aggregate_id,
+                  payload,
+              }| {
+            DomainEvent {
+                aggregate_id,
+                sequence: current_sequence.next_value(),
+                time: Utc::now(),
+                payload,
+                metadata: metadata.clone(),
+            }
+        },
+    )
 }

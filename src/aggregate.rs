@@ -17,8 +17,8 @@ impl Generation {
         self.0
     }
 
-    pub fn next_value(self) -> Self {
-        Self(self.0 + 1)
+    pub fn increment(&mut self) {
+        self.0 += 1;
     }
 }
 
@@ -38,6 +38,7 @@ pub type AggregateIdOf<A> = <A as WithAggregateId>::Id;
 
 pub trait AggregateState {
     fn generation(&self) -> Generation;
+    fn generation_mut(&mut self) -> &mut Generation;
 }
 
 pub trait Aggregate<E>
@@ -52,20 +53,19 @@ where
     }
 }
 
+pub trait InitializeAggregate {
+    type State: WithAggregateId;
+
+    fn initialize(aggregate_id: AggregateIdOf<Self::State>) -> Self::State;
+}
+
 #[derive(Debug, Clone, PartialEq)]
-pub struct EventSourcedAggregate<S> {
+pub struct VersionedAggregate<S> {
     generation: Generation,
     state: S,
 }
 
-impl<S> EventSourcedAggregate<S> {
-    pub fn new(state: S) -> Self {
-        Self {
-            generation: Generation::default(),
-            state,
-        }
-    }
-
+impl<S> VersionedAggregate<S> {
     pub fn restore(generation_number: u64, state: S) -> Self {
         Self {
             generation: Generation(generation_number),
@@ -82,13 +82,31 @@ impl<S> EventSourcedAggregate<S> {
     }
 }
 
-impl<S> AggregateState for EventSourcedAggregate<S> {
-    fn generation(&self) -> Generation {
-        self.generation
+impl<S> InitializeAggregate for VersionedAggregate<S>
+where
+    S: WithAggregateId + InitializeAggregate<State = S>,
+{
+    type State = Self;
+
+    fn initialize(aggregate_id: AggregateIdOf<Self::State>) -> Self::State {
+        Self {
+            generation: Generation::default(),
+            state: S::initialize(aggregate_id),
+        }
     }
 }
 
-impl<S> WithAggregateId for EventSourcedAggregate<S>
+impl<S> AggregateState for VersionedAggregate<S> {
+    fn generation(&self) -> Generation {
+        self.generation
+    }
+
+    fn generation_mut(&mut self) -> &mut Generation {
+        &mut self.generation
+    }
+}
+
+impl<S> WithAggregateId for VersionedAggregate<S>
 where
     S: WithAggregateId,
 {
@@ -99,7 +117,7 @@ where
     }
 }
 
-impl<E, S> Aggregate<E> for EventSourcedAggregate<S>
+impl<E, S> Aggregate<E> for VersionedAggregate<S>
 where
     E: 'static + Clone,
     S: Aggregate<E> + AggregateType,
@@ -112,19 +130,37 @@ where
             event.payload.clone(),
         );
         self.state.apply_event(&event);
-        self.generation = self.generation.next_value();
+        self.generation.increment();
     }
 }
 
-impl<C, A, S> HandleCommand<C, A> for EventSourcedAggregate<S>
+impl<C, S> HandleCommand<C, Self> for VersionedAggregate<S>
 where
-    S: HandleCommand<C, A>,
-    A: WithAggregateId,
+    S: HandleCommand<C, S>,
+    S: WithAggregateId,
 {
-    type Event = <S as HandleCommand<C, A>>::Event;
-    type Error = <S as HandleCommand<C, A>>::Error;
+    type Event = <S as HandleCommand<C, S>>::Event;
+    type Error = <S as HandleCommand<C, S>>::Error;
+    type Context = <S as HandleCommand<C, S>>::Context;
 
-    fn handle_command(&self, command: C) -> Result<Vec<NewEvent<Self::Event, A>>, Self::Error> {
-        self.state.handle_command(command)
+    fn handle_command(
+        &self,
+        command: C,
+        context: &Self::Context,
+    ) -> Result<Vec<NewEvent<Self::Event, Self>>, Self::Error> {
+        self.state.handle_command(command, context).map(|events| {
+            events
+                .into_iter()
+                .map(
+                    |NewEvent {
+                         aggregate_id,
+                         payload,
+                     }| NewEvent {
+                        aggregate_id,
+                        payload,
+                    },
+                )
+                .collect::<Vec<_>>()
+        })
     }
 }
