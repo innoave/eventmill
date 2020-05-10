@@ -15,6 +15,7 @@ edition = "2018"
 derive = ["eventmill_derive"]
 
 [dependencies.eventmill_derive]
+version = "0.1.0"
 path = "./eventmill-derive"
 optional = true
 
