@@ -16,10 +16,10 @@ readme = "README.md"
 edition = "2018"
 
 [features]
-derive = ["eventmill_derive"]
+#derive = ["eventmill_derive"]
 
 [dependencies]
-eventmill_derive = { version = "0.1.0", optional = true, path = "./eventmill-derive" }
+#eventmill_derive = { version = "0.1.0", optional = true, path = "./eventmill-derive" }
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
@@ -34,5 +34,5 @@ all-features = true
 [workspace]
 members = [
     "eventmill-derive",
-    "eventmill-examples",
+#    "eventmill-examples",
 ]
