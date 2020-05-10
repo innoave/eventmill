@@ -4,7 +4,6 @@
 [![Documentation]][docs.rs]
 [![License]](LICENSE)
 [![Rustc Support 1.31+]][Rust 1.31]
-[![Build Status]][actions]
 
 [Latest Release]: https://img.shields.io/crates/v/eventmill_derive.svg
 [crates.io]: https://crates.io/crates/eventmill_derive
