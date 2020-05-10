@@ -9,6 +9,10 @@ description = "Derive macros for convient implementation of some traits of the `
 keywords = ["event-sourcing", "cqrs", "aggregate", "ddd"]
 categories = ["architecture", "pattern"]
 
+documentation = "https://docs.rs/eventmill_derive"
+repository = "https://github.com/innoave/eventmill/tree/master/eventmill-derive"
+readme = "README.md"
+
 edition = "2018"
 
 [lib]
@@ -19,8 +23,5 @@ syn = { version = "1", features = ["extra-traits"] }
 quote = "1"
 
 [dev-dependencies]
+eventmill = { version = "0.1.0", path = "../" }
 trybuild = "1"
-
-[dev-dependencies.eventmill]
-version = "0.1.0"
-path = "../"

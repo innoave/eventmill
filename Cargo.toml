@@ -9,17 +9,17 @@ description = "Event sourcing and CQRS for Rust applications"
 keywords = ["event-sourcing", "cqrs", "aggregate", "ddd"]
 categories = ["architecture", "pattern"]
 
+documentation = "https://docs.rs/eventmill"
+repository = "https://github.com/innoave/eventmill"
+readme = "README.md"
+
 edition = "2018"
 
 [features]
 derive = ["eventmill_derive"]
 
-[dependencies.eventmill_derive]
-version = "0.1.0"
-path = "./eventmill-derive"
-optional = true
-
 [dependencies]
+eventmill_derive = { version = "0.1.0", optional = true, path = "./eventmill-derive" }
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
@@ -28,12 +28,11 @@ thiserror = "1"
 bigdecimal = { version = "0.1", features = ["serde"] }
 version-sync = "0.9"
 
-[dev-dependencies.eventmill_derive]
-path = "./eventmill-derive"
-optional = false
-
-[workspace]
-members = ["eventmill-derive"]
-
 [package.metadata.docs.rs]
 all-features = true
+
+[workspace]
+members = [
+    "eventmill-derive",
+    "eventmill-examples",
+]
