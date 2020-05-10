@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="clippy" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+  <configuration default="false" name="test eventmill-derive" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
     <option name="channel" value="DEFAULT" />
-    <option name="command" value="clippy --all" />
-    <option name="allFeatures" value="true" />
-    <option name="nocapture" value="false" />
+    <option name="command" value="test --package eventmill_derive" />
+    <option name="allFeatures" value="false" />
+    <option name="nocapture" value="true" />
     <option name="emulateTerminal" value="false" />
     <option name="backtrace" value="NO" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />

@@ -11,8 +11,12 @@ categories = ["architecture", "pattern"]
 
 edition = "2018"
 
-[package.metadata.docs.rs]
-all-features = true
+[features]
+derive = ["eventmill_derive"]
+
+[dependencies.eventmill_derive]
+path = "./eventmill-derive"
+optional = true
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
@@ -22,3 +26,13 @@ thiserror = "1"
 [dev-dependencies]
 bigdecimal = { version = "0.1", features = ["serde"] }
 version-sync = "0.9"
+
+[dev-dependencies.eventmill_derive]
+path = "./eventmill-derive"
+optional = false
+
+[workspace]
+members = ["eventmill-derive"]
+
+[package.metadata.docs.rs]
+all-features = true

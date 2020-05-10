@@ -1,8 +1,9 @@
 use bigdecimal::BigDecimal;
 use eventmill::{
-    wrap_events, Aggregate, AggregateType, DomainEvent, EventType, HandleCommand, NewEvent,
-    Sequence, WithAggregateId,
+    wrap_events, Aggregate, AggregateType, DomainEvent, HandleCommand, NewEvent, Sequence,
+    WithAggregateId,
 };
+use eventmill_derive::EventType;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 
@@ -12,65 +13,32 @@ const EVENT_NAMESPACE: &str = "https://github.com/innoave/eventmill/examples/ban
 // Domain Events
 //
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(EventType, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[event_source(EVENT_NAMESPACE)]
+#[event_type_version("V1")]
+#[event_type("AccountCreated")]
 struct AccountCreated {
     account_code: String,
     owner: String,
     credit_limit: BigDecimal,
 }
 
-impl EventType for AccountCreated {
-    fn event_type_version(&self) -> &str {
-        "V1"
-    }
-
-    fn event_type(&self) -> &str {
-        "AccountCreated"
-    }
-
-    fn event_source(&self) -> &str {
-        EVENT_NAMESPACE
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(EventType, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[event_source(EVENT_NAMESPACE)]
+#[event_type_version("V1")]
+#[event_type("MoneyDeposited")]
 struct MoneyDeposited {
     account_code: String,
     amount: BigDecimal,
 }
 
-impl EventType for MoneyDeposited {
-    fn event_type_version(&self) -> &str {
-        "V1"
-    }
-
-    fn event_type(&self) -> &str {
-        "CashDeposited"
-    }
-
-    fn event_source(&self) -> &str {
-        EVENT_NAMESPACE
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(EventType, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[event_source(EVENT_NAMESPACE)]
+#[event_type_version("V1")]
+#[event_type("MoneyWithdrawn")]
 struct MoneyWithdrawn {
     account_code: String,
     amount: BigDecimal,
-}
-
-impl EventType for MoneyWithdrawn {
-    fn event_type_version(&self) -> &str {
-        "V1"
-    }
-
-    fn event_type(&self) -> &str {
-        "CashWithdrawn"
-    }
-
-    fn event_source(&self) -> &str {
-        EVENT_NAMESPACE
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -79,13 +47,16 @@ enum MoneyTransferred {
     Debit(MoneyDeposited),
 }
 
-impl EventType for MoneyTransferred {
+impl eventmill::EventType for MoneyTransferred {
     fn event_type_version(&self) -> &str {
         "V1"
     }
 
     fn event_type(&self) -> &str {
-        "MoneyTransferred"
+        match self {
+            MoneyTransferred::Credit(_) => "MoneyTransferred::Credit",
+            MoneyTransferred::Debit(_) => "MoneyTransferred::Debit",
+        }
     }
 
     fn event_source(&self) -> &str {

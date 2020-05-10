@@ -30,3 +30,6 @@ pub use event::*;
 pub use metadata::*;
 pub use query::*;
 pub use store::*;
+
+#[cfg(feature = "derive")]
+pub use eventmill_derive::*;

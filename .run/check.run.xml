@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="check" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
     <option name="channel" value="DEFAULT" />
-    <option name="command" value="check" />
+    <option name="command" value="check --all" />
     <option name="allFeatures" value="true" />
     <option name="nocapture" value="false" />
     <option name="emulateTerminal" value="false" />
