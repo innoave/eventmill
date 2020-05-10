@@ -41,27 +41,12 @@ struct MoneyWithdrawn {
     amount: BigDecimal,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(EventType, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[event_source(EVENT_NAMESPACE)]
+#[event_type_version("V2")]
 enum MoneyTransferred {
     Credit(MoneyWithdrawn),
     Debit(MoneyDeposited),
-}
-
-impl eventmill::EventType for MoneyTransferred {
-    fn event_type_version(&self) -> &str {
-        "V1"
-    }
-
-    fn event_type(&self) -> &str {
-        match self {
-            MoneyTransferred::Credit(_) => "MoneyTransferred::Credit",
-            MoneyTransferred::Debit(_) => "MoneyTransferred::Debit",
-        }
-    }
-
-    fn event_source(&self) -> &str {
-        EVENT_NAMESPACE
-    }
 }
 
 //
