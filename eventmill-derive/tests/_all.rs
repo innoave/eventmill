@@ -1,17 +1,29 @@
 #[test]
-fn all_attributes_specified() {
+fn struct_all_attributes_specified() {
     let t = trybuild::TestCases::new();
-    t.pass("tests/all_attributes_specified.rs")
+    t.pass("tests/struct_all_attributes_specified.rs")
 }
 
 #[test]
-fn no_attribute_specified() {
+fn struct_no_attribute_specified() {
     let t = trybuild::TestCases::new();
-    t.pass("tests/no_attribute_specified.rs")
+    t.pass("tests/struct_no_attribute_specified.rs")
 }
 
 #[test]
-fn event_type_attribute_omitted() {
+fn struct_event_type_attribute_omitted() {
     let t = trybuild::TestCases::new();
-    t.pass("tests/event_type_attribute_omitted.rs")
+    t.pass("tests/struct_event_type_attribute_omitted.rs")
+}
+
+#[test]
+fn enum_no_attribute_specified() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/enum_no_attribute_specified.rs")
+}
+
+#[test]
+fn enum_event_type_attribute_omitted() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/enum_event_type_attribute_omitted.rs")
 }
