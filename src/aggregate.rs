@@ -1,7 +1,7 @@
 use crate::{DomainEvent, HandleCommand, NewEvent};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::fmt::{self, Debug, Display};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Generation(u64);
@@ -9,6 +9,12 @@ pub struct Generation(u64);
 impl Default for Generation {
     fn default() -> Self {
         Self(0)
+    }
+}
+
+impl Display for Generation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

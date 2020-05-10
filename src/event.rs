@@ -2,7 +2,7 @@ use crate::metadata::{Key, Metadata, Value};
 use crate::{AggregateIdOf, AggregateType, Generation, WithAggregateId};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::fmt::{self, Debug, Display};
 use std::iter::FromIterator;
 
 pub trait EventType {
@@ -17,6 +17,12 @@ pub struct Sequence(u64);
 impl Default for Sequence {
     fn default() -> Self {
         Self(1)
+    }
+}
+
+impl Display for Sequence {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
