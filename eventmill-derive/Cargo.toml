@@ -21,3 +21,7 @@ quote = "1"
 [dev-dependencies]
 trybuild = "1"
 eventmill = { path = "../" }
+
+[[test]]
+name = "tests"
+path = "tests/_all.rs"

@@ -1,5 +1,4 @@
 #![recursion_limit = "128"]
-#![allow(unused_variables)]
 
 extern crate proc_macro;
 
@@ -25,23 +24,23 @@ fn derive_event_type_for_enum(ast: &DeriveInput, enum_data: &DataEnum) -> TokenS
     unimplemented!()
 }
 
-fn derive_event_type_for_struct(ast: &DeriveInput, struct_data: &DataStruct) -> TokenStream {
-    let (impl_generics, _ty_generics, where_clause) = ast.generics.split_for_impl();
+fn derive_event_type_for_struct(ast: &DeriveInput, _struct_data: &DataStruct) -> TokenStream {
+    let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
     let tname = &ast.ident;
     let evversion = find_event_type_version_attribute(&ast.attrs)
-        .map(|attr| (&attr.tokens).to_token_stream())
+        .map(|attr| (&attr.tokens).into_token_stream())
         .unwrap_or_else(|| quote!("V0"));
     let evsource = find_event_source_attribute(&ast.attrs)
-        .map(|attr| (&attr.tokens).to_token_stream())
+        .map(|attr| (&attr.tokens).into_token_stream())
         .unwrap_or_else(|| quote!(""));
     let evtype = find_event_type_attribute(&ast.attrs)
-        .map(|attr| (&attr.tokens).to_token_stream())
-        .unwrap_or_else(|| quote!(#tname));
+        .map(|attr| (&attr.tokens).into_token_stream())
+        .unwrap_or_else(|| quote!(stringify!(#tname)));
 
     (quote! {
-        #[allow(unused_paranthesis)]
-        #[allow(unused_qualifications)]
-        impl #impl_generics ::eventmill::EventType for #tname #where_clause {
+        #[allow(unused_qualifications, unused_parens)]
+        #[automatically_derived]
+        impl #impl_generics ::eventmill::EventType for #tname #ty_generics #where_clause {
             fn event_type_version(&self) -> &str {
                 #evversion
             }
@@ -56,7 +55,7 @@ fn derive_event_type_for_struct(ast: &DeriveInput, struct_data: &DataStruct) -> 
     .into()
 }
 
-fn derive_event_type_for_union(ast: &DeriveInput, union_data: &DataUnion) -> TokenStream {
+fn derive_event_type_for_union(_ast: &DeriveInput, _union_data: &DataUnion) -> TokenStream {
     panic!("#[derive(EventType)] is only defined for struct and enum types, but not union types")
 }
 
