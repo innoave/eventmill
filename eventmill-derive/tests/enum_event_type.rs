@@ -21,7 +21,7 @@ fn enum_no_attribute_specified() {
     assert_eq!(turtle.event_type(), "Turtle::Turned");
 
     let turtle = Turtle::Moved { x: 4, y: 2 };
-    assert_eq!(turtle.event_type(), "Turtle::Moved")
+    assert_eq!(turtle.event_type(), "Turtle::Moved");
 }
 
 #[test]
@@ -50,7 +50,7 @@ fn enum_with_event_type_attribute_omitted() {
     assert_eq!(turtle.event_type(), "Turtle::Turned");
 
     let turtle = Turtle::Moved { x: 4, y: 2 };
-    assert_eq!(turtle.event_type(), "Turtle::Moved")
+    assert_eq!(turtle.event_type(), "Turtle::Moved");
 }
 
 #[test]
@@ -82,5 +82,5 @@ fn enum_with_event_type_attribute_on_variants() {
     assert_eq!(turtle.event_type(), "turtle-turned");
 
     let turtle = Turtle::Moved { x: 4, y: 2 };
-    assert_eq!(turtle.event_type(), "turtle-moved")
+    assert_eq!(turtle.event_type(), "turtle-moved");
 }
