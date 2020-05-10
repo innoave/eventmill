@@ -220,7 +220,7 @@ impl HandleCommand<TransferMoney, BankAccount> for (BankAccount, BankAccount) {
             (&self.1, &self.0)
         };
 
-        if &creditor_account.balance - &amount < creditor_account.credit_limit {
+        if (&creditor_account.balance - &amount) < creditor_account.credit_limit {
             Err(BankAccountError::BalanceBelowLimit)
         } else {
             let credit_event = MoneyTransferred::Credit(MoneyWithdrawn {
@@ -245,7 +245,7 @@ fn main() -> Result<(), BankAccountError> {
 
     let mut bank_account = BankAccount {
         account_code: "0815".to_string(),
-        credit_limit: (-8000).into(),
+        credit_limit: (-1200).into(),
         balance: 400.into(),
     };
 
@@ -266,7 +266,7 @@ fn main() -> Result<(), BankAccountError> {
     let first_events = wrap_events(&mut current_sequence, first_events).collect::<Vec<_>>();
     bank_account.apply_all_events(&first_events);
 
-    println!("state after applying those events: {:#?}", bank_account);
+    println!("state after applying deposit event: {:#?}", bank_account);
 
     let another_bank_account = BankAccount {
         account_code: "4711".to_string(),
@@ -280,18 +280,24 @@ fn main() -> Result<(), BankAccountError> {
         amount: 300.into(),
     };
 
+    println!("handling transfer command: {:#?}", transfer);
+
     let aggregate = (bank_account, another_bank_account);
     let transfer_events = aggregate.handle_command(transfer, &())?;
     assert_eq!(transfer_events.len(), 2);
+
+    println!("|-> generated two events: {:#?}", transfer_events);
 
     let (mut bank_account, _another_bank_account) = aggregate;
 
     let transfer_events = wrap_events(&mut current_sequence, transfer_events).collect::<Vec<_>>();
     bank_account.apply_event(&transfer_events[0]);
 
+    println!("state after applying transfer event: {:#?}", bank_account);
+
     let withdraw = WithdrawCash {
         account_code: "0815".to_string(),
-        amount: 221.into(),
+        amount: 1421.into(),
     };
 
     println!("next withdraw command: {:#?}", withdraw);
