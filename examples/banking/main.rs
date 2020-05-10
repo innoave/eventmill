@@ -143,8 +143,9 @@ impl Aggregate<MoneyTransferred> for BankAccount {
 // Commands
 //
 
-#[derive(Debug, PartialEq)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 enum BankAccountError {
+    #[error("not enough funds in bank account")]
     BalanceBelowLimit,
 }
 

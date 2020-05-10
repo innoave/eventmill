@@ -4,6 +4,7 @@ use crate::{
     WithAggregateId,
 };
 use serde::{Deserialize, Serialize};
+use std::fmt::{Debug, Display};
 
 pub trait DispatchEvent<E, A>
 where
@@ -15,7 +16,7 @@ where
 
 pub trait DispatchCommand<C, A> {
     type Context;
-    type Error;
+    type Error: std::error::Error;
 
     fn dispatch_command(
         &self,
@@ -24,12 +25,24 @@ pub trait DispatchCommand<C, A> {
     ) -> Result<VersionedAggregate<A>, Self::Error>;
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum CoreError<R, W, H> {
+#[derive(thiserror::Error, Debug, PartialEq, Serialize, Deserialize)]
+pub enum CoreError<R, W, H>
+where
+    R: Debug + Display,
+    W: Debug + Display,
+    H: Debug + Display,
+{
+    #[error("failed to replay aggregate from event store: {0}")]
     ReplayAggregateFailed(R),
+    #[error("failed to append events to the event store: {0}")]
     AppendEventsFailed(W),
+    #[error("handling of command failed: {0}")]
     HandleCommandFailed(H),
-    GenerationConflict(Generation, Generation),
+    #[error("actual aggregate version ({actual}) does not match the assumed version ({assumed})")]
+    GenerationConflict {
+        assumed: Generation,
+        actual: Generation,
+    },
 }
 
 pub type CoreDispatchError<S, C, A> = CoreError<
@@ -81,10 +94,10 @@ where
         // Check for generation conflict, which means whether the command was
         // issued based on the current state of the aggregate
         if aggregate_generation != aggregate.generation() {
-            return Err(CoreError::GenerationConflict(
-                aggregate_generation,
-                aggregate.generation(),
-            ));
+            return Err(CoreError::GenerationConflict {
+                assumed: aggregate_generation,
+                actual: aggregate.generation(),
+            });
         }
 
         let mut current_sequence = Sequence::from(aggregate.generation());

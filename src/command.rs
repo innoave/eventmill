@@ -9,7 +9,7 @@ where
     A: WithAggregateId,
 {
     type Event;
-    type Error;
+    type Error: std::error::Error;
     type Context;
 
     fn handle_command(

@@ -6,7 +6,7 @@ where
     E: EventType,
     A: WithAggregateId,
 {
-    type Error;
+    type Error: std::error::Error;
 
     fn append(&self, event: DomainEvent<E, A>) -> Result<(), Self::Error>;
 
@@ -19,7 +19,7 @@ where
 pub type EventSinkError<S, E, A> = <S as EventSink<E, A>>::Error;
 
 pub trait EventSource<E, A> {
-    type Error;
+    type Error: std::error::Error;
 
     fn read_events<R>(
         &self,
