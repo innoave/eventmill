@@ -34,10 +34,13 @@ fn derive_event_type_for_enum(ast: &DeriveInput, enum_data: &DataEnum) -> TokenS
         .iter()
         .map(|variant| {
             let vname = &variant.ident;
-            let event_type = format!("{}::{}", tname, vname);
+            let default_evtype = &format!("{}::{}", tname, vname);
+            let evtype = find_event_type_attribute(&variant.attrs)
+                .map(|attr| (&attr.tokens).into_token_stream())
+                .unwrap_or_else(|| quote!(#default_evtype));
             match variant.fields {
                 Fields::Unit => quote! {
-                    #tname::#vname => #event_type,
+                    #tname::#vname => #evtype,
                 },
                 Fields::Unnamed(ref fields) => {
                     let field_names = fields
@@ -46,7 +49,7 @@ fn derive_event_type_for_enum(ast: &DeriveInput, enum_data: &DataEnum) -> TokenS
                         .map(|p| p.value().ident.as_ref())
                         .collect::<Vec<_>>();
                     quote! {
-                        #tname::#vname( #(_#field_names,)* ) => #event_type,
+                        #tname::#vname( #(_#field_names,)* ) => #evtype,
                     }
                 }
                 Fields::Named(ref fields) => {
@@ -56,7 +59,7 @@ fn derive_event_type_for_enum(ast: &DeriveInput, enum_data: &DataEnum) -> TokenS
                         .map(|p| p.value().ident.as_ref())
                         .collect::<Vec<_>>();
                     quote! {
-                        #tname::#vname { #(#field_names: _,)* } => #event_type,
+                        #tname::#vname { #(#field_names: _,)* } => #evtype,
                     }
                 }
             }

@@ -7,12 +7,4 @@ pub enum Turtle {
     Stopped,
 }
 
-fn main() {
-    use eventmill::EventType;
-
-    let turtle = Turtle::Stopped;
-
-    assert_eq!(turtle.event_type_version(), "V0");
-    assert_eq!(turtle.event_source(), "");
-    assert_eq!(turtle.event_type(), "Turtle::Stopped 2");
-}
+fn main() {}
