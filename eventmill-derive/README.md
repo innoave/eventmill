@@ -117,7 +117,7 @@ fn main() {
 ```
 
 We can use any expression that evaluates to `&str` as the values of attributes. E.g. use a `const`
-for when defining the `event_source` attribute.
+for defining the `event_source` attribute.
 
 ```rust
 const EVENT_NAMESPACE: &str = "https://github.com/innoave/eventmill/examples/turtle";
