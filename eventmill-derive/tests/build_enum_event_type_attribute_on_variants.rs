@@ -12,4 +12,21 @@ pub enum Turtle {
     Stopped,
 }
 
-fn main() {}
+fn main() {
+    use eventmill::EventType;
+
+    let turtle = Turtle::Stopped;
+
+    assert_eq!(turtle.event_type_version(), "V2");
+    assert_eq!(
+        turtle.event_source(),
+        "https://github.com/innoave/eventmill/examples/turtle"
+    );
+    assert_eq!(turtle.event_type(), "turtle-stopped");
+
+    let turtle = Turtle::Turned(0.42);
+    assert_eq!(turtle.event_type(), "turtle-turned");
+
+    let turtle = Turtle::Moved { x: 4, y: 2 };
+    assert_eq!(turtle.event_type(), "turtle-moved");
+}
