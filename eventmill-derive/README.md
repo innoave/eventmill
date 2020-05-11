@@ -34,6 +34,7 @@ Implementing an event using a `struct` and specifying all available attributes.
 #[derive(EventType, Debug)]
 #[event_type_version("V2")]
 #[event_source("https://github.com/innoave/eventmill/examples/turtle")]
+#[event_type("turtle-turned")]
 pub struct TurtleTurned {
     angle: f32,
 }
@@ -48,7 +49,7 @@ fn main() {
         turtle.event_source(),
         "https://github.com/innoave/eventmill/examples/turtle"
     );
-    assert_eq!(turtle.event_type(), "TurtleTurned");
+    assert_eq!(turtle.event_type(), "turtle-turned");
 }
 ```
 
