@@ -3,6 +3,7 @@ use proptest::prelude::*;
 
 mod sequence {
     use super::*;
+    use std::u64;
 
     #[test]
     fn default_sequence_number_is_0() {

@@ -4,6 +4,7 @@ use proptest::prelude::*;
 mod generation {
     use super::*;
     use crate::event::Sequence;
+    use std::u64;
 
     #[test]
     fn default_generation_number_is_0() {
