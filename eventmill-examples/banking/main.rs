@@ -1,7 +1,8 @@
 use bigdecimal::BigDecimal;
+use eventmill::event::wrap_events;
 use eventmill::{
-    wrap_events, Aggregate, AggregateType, DomainEvent, EventType, HandleCommand, NewEvent,
-    Sequence, WithAggregateId,
+    Aggregate, AggregateType, DomainEvent, EventType, HandleCommand, NewEvent, Sequence,
+    WithAggregateId,
 };
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;

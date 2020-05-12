@@ -1,7 +1,7 @@
-use crate::{
-    AggregateIdOf, AggregateType, DomainEvent, EventSink, EventSource, EventType, ReceiveEvent,
-    WithAggregateId,
-};
+use crate::aggregate::{AggregateIdOf, AggregateType, WithAggregateId};
+use crate::event::{DomainEvent, EventType};
+use crate::query::ReceiveEvent;
+use crate::store::{EventSink, EventSource};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, RwLock};

@@ -57,23 +57,36 @@
     unused_qualifications
 )]
 
-mod aggregate;
-mod command;
-mod dispatch;
-mod event;
+pub mod aggregate;
+pub mod command;
+pub mod dispatch;
+pub mod event;
 pub mod inmemory_store;
-mod metadata;
-mod query;
-mod store;
+pub mod metadata;
+pub mod query;
+pub mod store;
 pub mod test_support;
 
-pub use aggregate::*;
-pub use command::*;
-pub use dispatch::*;
-pub use event::*;
-pub use metadata::*;
-pub use query::*;
-pub use store::*;
+//
+// Re-export of types and functions of the public API
+//
+// We should not re-export:
+//
+// * specific implementations of the API, e.g. `InMemoryStore`.
+// * types or functions with names that would be ambiguous if exported without
+//   the module name.
+//
+pub use crate::aggregate::{
+    Aggregate, AggregateIdOf, AggregateState, AggregateType, Generation, InitializeAggregate,
+    VersionedAggregate, WithAggregateId,
+};
+pub use crate::command::{DomainCommand, HandleCommand};
+pub use crate::dispatch::{DispatchCommand, DispatchEvent};
+pub use crate::event::{DomainEvent, EventType, NewEvent, Sequence};
+pub use crate::metadata::Metadata;
+pub use crate::query::ReceiveEvent;
+pub use crate::store::{EventSink, EventSinkError, EventSource, EventSourceError};
 
+// Export derive macros
 #[cfg(feature = "derive")]
-pub use eventmill_derive::*;
+pub use eventmill_derive::EventType;
