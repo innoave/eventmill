@@ -1,5 +1,5 @@
+use crate::aggregate::{AggregateIdOf, AggregateType, Generation, WithAggregateId};
 use crate::metadata::{Key, Metadata, Value};
-use crate::{AggregateIdOf, AggregateType, Generation, WithAggregateId};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Display};
@@ -32,7 +32,10 @@ impl Sequence {
     }
 
     pub fn next_value(&mut self) -> Self {
-        self.0 += 1;
+        self.0 = self.0.wrapping_add(1);
+        if self.0 == 0 {
+            self.0 = 1;
+        }
         Self(self.0)
     }
 }
@@ -216,3 +219,6 @@ where
         },
     )
 }
+
+#[cfg(test)]
+mod tests;

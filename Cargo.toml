@@ -26,6 +26,7 @@ thiserror = "1"
 
 [dev-dependencies]
 bigdecimal = { version = "0.1", features = ["serde"] }
+proptest = "0.9"
 version-sync = "0.9"
 
 [package.metadata.docs.rs]
