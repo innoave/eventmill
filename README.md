@@ -3,7 +3,7 @@
 [![Latest Release]][crates.io]
 [![Documentation]][docs.rs]
 [![License]](LICENSE)
-[![Rustc Support 1.31+]][Rust 1.31]
+[![Rustc Support 1.39+]][Rust 1.39]
 [![Build Status]][actions]
 
 [Latest Release]: https://img.shields.io/crates/v/eventmill.svg
@@ -15,8 +15,8 @@
 [Apache-2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Build Status]: https://img.shields.io/github/workflow/status/innoave/eventmill/CI/master
 [actions]: https://github.com/innoave/eventmill/actions?query=branch%3Amaster
-[Rustc Support 1.31+]: https://img.shields.io/badge/rustc-1.31+-lightgray.svg
-[Rust 1.31]: https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html
+[Rustc Support 1.39+]: https://img.shields.io/badge/rustc-1.39+-lightgray.svg
+[Rust 1.39]: https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html
 
 **Event sourcing and CQRS for Rust applications**
 

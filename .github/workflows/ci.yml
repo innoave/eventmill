@@ -11,9 +11,10 @@ jobs:
     name: Test - Rust ${{matrix.rust}} - ${{matrix.os}}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable, beta, 1.31.0]
+        rust: [stable, beta, 1.39.0]
 
     runs-on: ${{ matrix.os }}
 
