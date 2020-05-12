@@ -5,16 +5,16 @@ mod sequence {
     use super::*;
 
     #[test]
-    fn default_sequence_number_is_1() {
+    fn default_sequence_number_is_0() {
         let sequence = Sequence::default();
 
-        assert_eq!(sequence.number(), 1);
+        assert_eq!(sequence.number(), 0);
     }
 
     proptest! {
         #[test]
         fn next_value_returns_this_sequence_plus_1(
-            number in (1..u64::MAX)
+            number in (0..u64::MAX)
         ) {
             let mut sequence = Sequence(number);
 
@@ -25,18 +25,18 @@ mod sequence {
     }
 
     #[test]
-    fn next_value_wraps_around_on_max_value_skipping_0() {
+    fn next_value_wraps_around_on_max_value() {
         let mut sequence = Sequence(u64::MAX);
 
         let next_value = sequence.next_value();
 
-        assert_eq!(next_value.number(), 1);
+        assert_eq!(next_value.number(), 0);
     }
 
     proptest! {
         #[test]
         fn display_formats_like_an_integer(
-            number in (1..=u64::MAX)
+            number in (0..=u64::MAX)
         ) {
             let sequence = Sequence(number);
 

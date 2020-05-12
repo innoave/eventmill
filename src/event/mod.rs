@@ -16,7 +16,7 @@ pub struct Sequence(u64);
 
 impl Default for Sequence {
     fn default() -> Self {
-        Self(1)
+        Self(0)
     }
 }
 
@@ -33,9 +33,6 @@ impl Sequence {
 
     pub fn next_value(&mut self) -> Self {
         self.0 = self.0.wrapping_add(1);
-        if self.0 == 0 {
-            self.0 = 1;
-        }
         Self(self.0)
     }
 }
