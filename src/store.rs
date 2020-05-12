@@ -1,5 +1,6 @@
+use crate::aggregate::{AggregateIdOf, WithAggregateId};
+use crate::event::{DomainEvent, EventType};
 use crate::query::ReceiveEvent;
-use crate::{AggregateIdOf, DomainEvent, EventType, WithAggregateId};
 
 pub trait EventSink<E, A>
 where

@@ -1,8 +1,9 @@
-use crate::{
-    wrap_events, Aggregate, AggregateType, DomainCommand, DomainEvent, EventSink, EventSource,
-    EventType, Generation, HandleCommand, InitializeAggregate, Sequence, VersionedAggregate,
-    WithAggregateId,
+use crate::aggregate::{
+    Aggregate, AggregateType, Generation, InitializeAggregate, VersionedAggregate, WithAggregateId,
 };
+use crate::command::{DomainCommand, HandleCommand};
+use crate::event::{wrap_events, DomainEvent, EventType, Sequence};
+use crate::store::{EventSink, EventSource};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 

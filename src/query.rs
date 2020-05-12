@@ -1,4 +1,5 @@
-use crate::{Aggregate, DomainEvent, WithAggregateId};
+use crate::aggregate::{Aggregate, WithAggregateId};
+use crate::event::DomainEvent;
 
 pub trait ReceiveEvent<E, A>
 where

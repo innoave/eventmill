@@ -1,4 +1,5 @@
-use crate::{AggregateIdOf, Generation, NewEvent, WithAggregateId};
+use crate::aggregate::{AggregateIdOf, Generation, WithAggregateId};
+use crate::event::NewEvent;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
