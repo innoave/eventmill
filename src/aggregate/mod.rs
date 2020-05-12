@@ -134,7 +134,7 @@ where
             event.aggregate_id.clone(),
             event.sequence,
             event.time,
-            event.payload.clone(),
+            event.data.clone(),
         );
         self.state.apply_event(&event);
         self.generation.increment();
@@ -158,15 +158,7 @@ where
         self.state.handle_command(command, context).map(|events| {
             events
                 .into_iter()
-                .map(
-                    |NewEvent {
-                         aggregate_id,
-                         payload,
-                     }| NewEvent {
-                        aggregate_id,
-                        payload,
-                    },
-                )
+                .map(|NewEvent { aggregate_id, data }| NewEvent { aggregate_id, data })
                 .collect::<Vec<_>>()
         })
     }

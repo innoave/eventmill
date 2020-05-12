@@ -82,7 +82,7 @@ where
         DomainCommand {
             aggregate_id,
             aggregate_generation,
-            payload,
+            data,
         }: DomainCommand<C, A>,
         context: &Self::Context,
     ) -> Result<VersionedAggregate<A>, Self::Error> {
@@ -105,7 +105,7 @@ where
 
         // Handle the command
         let new_events = aggregate
-            .handle_command(payload, context)
+            .handle_command(data, context)
             .map_err(CoreError::HandleCommandFailed)?;
         let domain_events = wrap_events(&mut current_sequence, new_events).collect::<Vec<_>>();
 

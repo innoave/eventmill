@@ -51,7 +51,7 @@ where
     pub aggregate_id: AggregateIdOf<A>,
     pub sequence: Sequence,
     pub time: DateTime<Utc>,
-    pub payload: E,
+    pub data: E,
     pub metadata: Metadata,
 }
 
@@ -63,19 +63,19 @@ where
         aggregate_id: AggregateIdOf<A>,
         sequence: Sequence,
         time: DateTime<Utc>,
-        payload: E,
+        data: E,
     ) -> Self {
         Self {
             aggregate_id,
             sequence,
             time,
-            payload,
+            data,
             metadata: Metadata::new(),
         }
     }
 
-    pub fn new_now(aggregate_id: AggregateIdOf<A>, sequence: Sequence, payload: E) -> Self {
-        Self::new(aggregate_id, sequence, Utc::now(), payload)
+    pub fn new_now(aggregate_id: AggregateIdOf<A>, sequence: Sequence, data: E) -> Self {
+        Self::new(aggregate_id, sequence, Utc::now(), data)
     }
 
     pub fn with_metadata<M>(mut self, metadata: M) -> Self
@@ -87,7 +87,7 @@ where
     }
 
     pub fn unwrap(self) -> (E, Metadata) {
-        (self.payload, self.metadata)
+        (self.data, self.metadata)
     }
 
     pub fn aggregate_type(&self) -> &str {
@@ -106,20 +106,20 @@ where
         self.time
     }
 
-    pub fn payload(&self) -> &E {
-        &self.payload
+    pub fn data(&self) -> &E {
+        &self.data
     }
 
     pub fn metadata(&self) -> &Metadata {
         &self.metadata
     }
 
-    pub fn transmute<U>(&self, another_payload: U) -> DomainEvent<U, A> {
+    pub fn transmute<U>(&self, other_data: U) -> DomainEvent<U, A> {
         DomainEvent {
             aggregate_id: self.aggregate_id.clone(),
             sequence: self.sequence,
             time: self.time,
-            payload: another_payload,
+            data: other_data,
             metadata: self.metadata.clone(),
         }
     }
@@ -131,18 +131,15 @@ where
     A: WithAggregateId,
 {
     pub aggregate_id: AggregateIdOf<A>,
-    pub payload: E,
+    pub data: E,
 }
 
 impl<E, A> From<(AggregateIdOf<A>, E)> for NewEvent<E, A>
 where
     A: WithAggregateId,
 {
-    fn from((aggregate_id, payload): (AggregateIdOf<A>, E)) -> Self {
-        Self {
-            aggregate_id,
-            payload,
-        }
+    fn from((aggregate_id, data): (AggregateIdOf<A>, E)) -> Self {
+        Self { aggregate_id, data }
     }
 }
 
@@ -150,23 +147,20 @@ impl<E, A> NewEvent<E, A>
 where
     A: WithAggregateId,
 {
-    pub fn new(aggregate_id: AggregateIdOf<A>, payload: E) -> Self {
-        Self {
-            aggregate_id,
-            payload,
-        }
+    pub fn new(aggregate_id: AggregateIdOf<A>, data: E) -> Self {
+        Self { aggregate_id, data }
     }
 
     pub fn unwrap(self) -> (AggregateIdOf<A>, E) {
-        (self.aggregate_id, self.payload)
+        (self.aggregate_id, self.data)
     }
 
     pub fn aggregate_id(&self) -> &AggregateIdOf<A> {
         &self.aggregate_id
     }
 
-    pub fn payload(&self) -> &E {
-        &self.payload
+    pub fn data(&self) -> &E {
+        &self.data
     }
 }
 
@@ -177,20 +171,15 @@ pub fn wrap_events<'a, E, A>(
 where
     A: WithAggregateId,
 {
-    events.into_iter().map(
-        move |NewEvent {
-                  aggregate_id,
-                  payload,
-              }| {
-            DomainEvent {
-                aggregate_id,
-                sequence: current_sequence.next_value(),
-                time: Utc::now(),
-                payload,
-                metadata: Default::default(),
-            }
-        },
-    )
+    events
+        .into_iter()
+        .map(move |NewEvent { aggregate_id, data }| DomainEvent {
+            aggregate_id,
+            sequence: current_sequence.next_value(),
+            time: Utc::now(),
+            data,
+            metadata: Default::default(),
+        })
 }
 
 pub fn wrap_events_with_metadata<'a, E, A>(
@@ -201,20 +190,15 @@ pub fn wrap_events_with_metadata<'a, E, A>(
 where
     A: WithAggregateId,
 {
-    events.into_iter().map(
-        move |NewEvent {
-                  aggregate_id,
-                  payload,
-              }| {
-            DomainEvent {
-                aggregate_id,
-                sequence: current_sequence.next_value(),
-                time: Utc::now(),
-                payload,
-                metadata: metadata.clone(),
-            }
-        },
-    )
+    events
+        .into_iter()
+        .map(move |NewEvent { aggregate_id, data }| DomainEvent {
+            aggregate_id,
+            sequence: current_sequence.next_value(),
+            time: Utc::now(),
+            data,
+            metadata: metadata.clone(),
+        })
 }
 
 #[cfg(test)]

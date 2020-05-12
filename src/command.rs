@@ -27,22 +27,18 @@ where
 {
     pub aggregate_id: AggregateIdOf<A>,
     pub aggregate_generation: Generation,
-    pub payload: C,
+    pub data: C,
 }
 
 impl<C, A> DomainCommand<C, A>
 where
     A: WithAggregateId,
 {
-    pub fn new(
-        aggregate_id: AggregateIdOf<A>,
-        aggregate_generation: Generation,
-        payload: C,
-    ) -> Self {
+    pub fn new(aggregate_id: AggregateIdOf<A>, aggregate_generation: Generation, data: C) -> Self {
         Self {
             aggregate_id,
             aggregate_generation,
-            payload,
+            data,
         }
     }
 }

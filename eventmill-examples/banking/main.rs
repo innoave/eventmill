@@ -72,19 +72,19 @@ impl WithAggregateId for BankAccount {
 
 impl Aggregate<MoneyDeposited> for BankAccount {
     fn apply_event(&mut self, event: &DomainEvent<MoneyDeposited, Self>) {
-        self.balance += event.payload.amount.clone();
+        self.balance += event.data.amount.clone();
     }
 }
 
 impl Aggregate<MoneyWithdrawn> for BankAccount {
     fn apply_event(&mut self, event: &DomainEvent<MoneyWithdrawn, Self>) {
-        self.balance -= event.payload.amount.clone();
+        self.balance -= event.data.amount.clone();
     }
 }
 
 impl Aggregate<MoneyTransferred> for BankAccount {
     fn apply_event(&mut self, event: &DomainEvent<MoneyTransferred, Self>) {
-        match &event.payload {
+        match &event.data {
             MoneyTransferred::Credit(money_withdrawn) => {
                 self.apply_event(&event.transmute(money_withdrawn.clone()))
             }
