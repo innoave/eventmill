@@ -53,6 +53,8 @@ jobs:
 
       - name: Run Tarpaulin
         uses: actions-rs/tarpaulin@v0.1
+        with:
+          args: '-p eventmill -- --ignore-tests
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1.0.2
