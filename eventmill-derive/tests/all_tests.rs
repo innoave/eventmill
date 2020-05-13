@@ -1,5 +1,5 @@
 #[test]
-fn build_struct_all_attributes_specified() {
+fn all_tests() {
     let t = trybuild::TestCases::new();
     t.pass("tests/build_struct_all_attributes_specified.rs");
     t.pass("tests/build_struct_no_attribute_specified.rs");

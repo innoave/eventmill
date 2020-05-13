@@ -184,8 +184,8 @@ where
 
 pub fn wrap_events_with_metadata<'a, E, A>(
     current_sequence: &'a mut Sequence,
-    events: impl IntoIterator<Item = NewEvent<E, A>> + 'a,
     metadata: &'a Metadata,
+    events: impl IntoIterator<Item = NewEvent<E, A>> + 'a,
 ) -> impl Iterator<Item = DomainEvent<E, A>> + 'a
 where
     A: WithAggregateId,
