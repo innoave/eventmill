@@ -26,6 +26,7 @@ jobs:
       - name: Run Tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:
+          timeout: 120
           args: '--ignore-tests -p eventmill --exclude-files eventmill-examples/*'
 
       - name: Upload to codecov.io
