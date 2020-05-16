@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CoreError",""]],"struct":[["Core",""]],"trait":[["DispatchCommand",""],["DispatchEvent",""]],"type":[["CoreDispatchError",""]]});
