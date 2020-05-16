@@ -25,6 +25,9 @@ jobs:
       - name: Run cargo doc --no-deps
         run: cargo doc --no-deps
 
+      - name: Move files
+        run: mv ./target/doc ./target/doc/doc
+
       - name: Deploy docs to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3
         with:
