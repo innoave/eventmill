@@ -26,7 +26,7 @@ jobs:
       - name: Run Tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:
-          args: '--ignore-tests -p eventmill -e eventmill-derive'
+          args: '--ignore-tests -p eventmill -e eventmill-examples'
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1.0.2
