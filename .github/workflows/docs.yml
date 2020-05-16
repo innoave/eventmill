@@ -27,7 +27,7 @@ jobs:
 
       - name: Move files
         run: |
-          mkdir ./public/doc
+          mkdir -p ./public/doc
           mv ./target/doc ./public/doc/master
 
       - name: Deploy docs to gh-pages branch
