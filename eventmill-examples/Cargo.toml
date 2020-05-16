@@ -1,6 +1,6 @@
 [package]
 name = "eventmill-examples"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["haraldmaida"]
 license = "MIT/Apache-2.0"
 
@@ -18,7 +18,7 @@ publish = false
 [dependencies]
 
 [dev-dependencies]
-eventmill = { path = "../", features = ["derive"] }
+eventmill = { features = ["derive"], path = "../" }
 
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }

@@ -19,7 +19,7 @@
 
 ```toml
 [dependencies]
-eventmill_derive = "0.1"    
+eventmill_derive = "0.2"    
 ```
 
 ## `#[derive(EventType)]`

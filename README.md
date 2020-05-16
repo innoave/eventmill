@@ -24,14 +24,14 @@
 
 ```toml
 [dependencies]
-eventmill = "0.1"
+eventmill = "0.2"
 ```
 
 to use the `derive` macros from the `eventmill-derive` crate activate the `derive` feature:
 
 ```toml
 [dependencies]
-eventmill = { version = "0.1", features = ["derive"] }    
+eventmill = { version = "0.2", features = ["derive"] }    
 ```
 
 ## TODO
