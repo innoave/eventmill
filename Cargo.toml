@@ -19,7 +19,7 @@ edition = "2018"
 derive = ["eventmill_derive"]
 
 [dependencies]
-eventmill_derive = { optional = true, path = "./eventmill-derive" }
+eventmill_derive = { version = "0.2", optional = true, path = "./eventmill-derive" }
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
