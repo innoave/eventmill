@@ -10,7 +10,7 @@ use std::convert::Infallible;
 const EVENT_NAMESPACE: &str = "https://github.com/innoave/eventmill/examples/banking";
 
 //
-// Domain Events
+// Domain events
 //
 
 #[derive(EventType, Debug, Clone, PartialEq, Serialize, Deserialize)]

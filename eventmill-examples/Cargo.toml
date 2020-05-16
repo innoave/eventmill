@@ -26,5 +26,9 @@ bigdecimal = { version = "0.1", features = ["serde"] }
 thiserror = "1"
 
 [[example]]
+name = "counter"
+path = "counter/main.rs"
+
+[[example]]
 name = "banking"
 path = "banking/main.rs"
