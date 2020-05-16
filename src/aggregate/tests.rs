@@ -59,4 +59,13 @@ mod generation {
             assert_eq!(sequence.number(), generation.number());
         }
     }
+
+    #[test]
+    fn can_be_converted_from_a_sequence() {
+        let sequence = Sequence::default();
+
+        let generation = Generation::from(sequence);
+
+        assert_eq!(generation.number(), sequence.number());
+    }
 }

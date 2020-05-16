@@ -46,6 +46,19 @@ mod sequence {
         }
     }
 
+    proptest! {
+        #[test]
+        fn can_be_converted_into_a_generation(
+            number in (0..=u64::MAX)
+        ) {
+            let sequence = Sequence(number);
+
+            let generation: Generation = sequence.into();
+
+            assert_eq!(generation.number(), sequence.number());
+        }
+    }
+
     #[test]
     fn can_be_converted_from_a_generation() {
         let generation = Generation::default();

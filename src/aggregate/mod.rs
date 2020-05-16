@@ -1,5 +1,5 @@
 use crate::command::HandleCommand;
-use crate::event::{DomainEvent, NewEvent};
+use crate::event::{DomainEvent, NewEvent, Sequence};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Display};
@@ -26,6 +26,12 @@ impl Generation {
 
     pub fn increment(&mut self) {
         self.0 = self.0.wrapping_add(1);
+    }
+}
+
+impl From<Sequence> for Generation {
+    fn from(sequence: Sequence) -> Self {
+        Self(sequence.number())
     }
 }
 
@@ -87,6 +93,10 @@ impl<S> VersionedAggregate<S> {
     pub fn generation(&self) -> Generation {
         self.generation
     }
+
+    pub fn state(&self) -> &S {
+        &self.state
+    }
 }
 
 impl<S> InitializeAggregate for VersionedAggregate<S>
@@ -102,6 +112,8 @@ where
         }
     }
 }
+
+impl<S> AggregateType for VersionedAggregate<S> {}
 
 impl<S> AggregateState for VersionedAggregate<S> {
     fn generation(&self) -> Generation {
