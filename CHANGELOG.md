@@ -11,6 +11,15 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 * the `payload` field of `NewEvent`, `DomainEvent` and `DomainCommand` has been renamed to `data`
 * only the public API is re-exported from the root of the crate. implementations und supplementary
   types have to be imported from the modules where they are defined in.
+* the trait `DispatchCommand` requires to define its Output type, which makes it more flexible
+
+## features
+
+* `Generation` implements `From<Sequence>`
+
+## fixes
+
+* `Core` command dispatcher is now usable
   
 ## internals
 
