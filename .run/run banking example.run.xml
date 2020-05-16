@@ -6,7 +6,7 @@
     <option name="nocapture" value="false" />
     <option name="emulateTerminal" value="false" />
     <option name="backtrace" value="NO" />
-    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$/eventmill-examples" />
     <envs />
     <method v="2">
       <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
