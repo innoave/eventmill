@@ -4,7 +4,7 @@ use proptest::prelude::*;
 mod core {
     use super::*;
     use crate::inmemory_store::InMemoryStore;
-    use crate::{AggregateIdOf, AggregateState, NewEvent};
+    use crate::{AggregateIdOf, NewEvent};
     use std::convert::Infallible;
 
     #[derive(Debug, Clone, PartialEq)]
@@ -29,7 +29,6 @@ mod core {
 
     struct Counter {
         id: i32,
-        generation: Generation,
         hits: u64,
     }
 
@@ -40,16 +39,6 @@ mod core {
 
         fn aggregate_id(&self) -> &Self::Id {
             &self.id
-        }
-    }
-
-    impl AggregateState for Counter {
-        fn generation(&self) -> Generation {
-            self.generation
-        }
-
-        fn generation_mut(&mut self) -> &mut Generation {
-            &mut self.generation
         }
     }
 
@@ -65,7 +54,6 @@ mod core {
         fn initialize(aggregate_id: AggregateIdOf<Self>) -> Self::State {
             Self {
                 id: aggregate_id,
-                generation: Default::default(),
                 hits: 0,
             }
         }
