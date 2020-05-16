@@ -17,13 +17,14 @@ where
 
 pub trait DispatchCommand<C, A> {
     type Context;
+    type Output;
     type Error: std::error::Error;
 
     fn dispatch_command(
         &self,
         command: C,
         context: &Self::Context,
-    ) -> Result<VersionedAggregate<A>, Self::Error>;
+    ) -> Result<Self::Output, Self::Error>;
 }
 
 #[derive(thiserror::Error, Debug, PartialEq, Serialize, Deserialize)]
@@ -47,8 +48,14 @@ where
 }
 
 pub type CoreDispatchError<S, C, A> = CoreError<
-    <S as EventSource<<A as HandleCommand<C, A>>::Event, VersionedAggregate<A>>>::Error,
-    <S as EventSink<<A as HandleCommand<C, A>>::Event, VersionedAggregate<A>>>::Error,
+    <S as EventSource<
+        <VersionedAggregate<A> as HandleCommand<C, VersionedAggregate<A>>>::Event,
+        VersionedAggregate<A>,
+    >>::Error,
+    <S as EventSink<
+        <VersionedAggregate<A> as HandleCommand<C, VersionedAggregate<A>>>::Event,
+        VersionedAggregate<A>,
+    >>::Error,
     <A as HandleCommand<C, A>>::Error,
 >;
 
@@ -71,10 +78,16 @@ where
         + HandleCommand<C, A>
         + InitializeAggregate<State = A>,
     <A as HandleCommand<C, A>>::Event: 'static + EventType + Clone,
-    S: EventSource<<A as HandleCommand<C, A>>::Event, VersionedAggregate<A>>
-        + EventSink<<A as HandleCommand<C, A>>::Event, VersionedAggregate<A>>,
+    S: EventSource<
+            <VersionedAggregate<A> as HandleCommand<C, VersionedAggregate<A>>>::Event,
+            VersionedAggregate<A>,
+        > + EventSink<
+            <VersionedAggregate<A> as HandleCommand<C, VersionedAggregate<A>>>::Event,
+            VersionedAggregate<A>,
+        >,
 {
     type Context = <A as HandleCommand<C, A>>::Context;
+    type Output = VersionedAggregate<A>;
     type Error = CoreDispatchError<S, C, A>;
 
     fn dispatch_command(
@@ -85,7 +98,7 @@ where
             data,
         }: DomainCommand<C, A>,
         context: &Self::Context,
-    ) -> Result<VersionedAggregate<A>, Self::Error> {
+    ) -> Result<Self::Output, Self::Error> {
         // Replay aggregate
         let mut aggregate = VersionedAggregate::initialize(aggregate_id.clone());
         self.event_store
@@ -119,3 +132,6 @@ where
         Ok(aggregate)
     }
 }
+
+#[cfg(test)]
+mod tests;
