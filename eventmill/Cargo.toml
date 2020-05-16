@@ -1,0 +1,33 @@
+[package]
+name = "eventmill"
+version = "0.2.0"
+authors = ["haraldmaida"]
+license = "MIT/Apache-2.0"
+
+description = "Event sourcing and CQRS for Rust applications"
+
+keywords = ["event-sourcing", "cqrs", "aggregate", "ddd"]
+categories = ["architecture", "pattern"]
+
+documentation = "https://docs.rs/eventmill"
+repository = "https://github.com/innoave/eventmill"
+readme = "../README.md"
+
+edition = "2018"
+
+[features]
+derive = ["eventmill_derive"]
+
+[dependencies]
+eventmill_derive = { version = "0.2", optional = true, path = "../eventmill-derive" }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+
+[dev-dependencies]
+bigdecimal = { version = "0.1", features = ["serde"] }
+proptest = "0.9"
+version-sync = "0.9"
+
+[package.metadata.docs.rs]
+all-features = true

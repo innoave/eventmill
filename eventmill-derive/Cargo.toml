@@ -24,7 +24,7 @@ syn = { version = "1", features = ["extra-traits"] }
 quote = "1"
 
 [dev-dependencies]
-eventmill = { path = "../" }
+eventmill = { path = "../eventmill" }
 trybuild = "1"
 
 [[test]]

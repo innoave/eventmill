@@ -18,7 +18,7 @@ publish = false
 [dependencies]
 
 [dev-dependencies]
-eventmill = { features = ["derive"], path = "../" }
+eventmill = { features = ["derive"], path = "../eventmill" }
 
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
