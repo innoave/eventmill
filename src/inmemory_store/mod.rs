@@ -18,7 +18,7 @@ pub enum Error {
     NoWriteAccess(String),
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct InMemoryStore<E, A>
 where
     A: WithAggregateId,
@@ -26,11 +26,28 @@ where
     events: Arc<RwLock<EventMap<E, A>>>,
 }
 
+impl<E, A> Default for InMemoryStore<E, A>
+where
+    A: WithAggregateId,
+{
+    fn default() -> Self {
+        Self {
+            events: Arc::new(RwLock::new(EventMap::new())),
+        }
+    }
+}
+
 impl<E, A> InMemoryStore<E, A>
 where
     A: AggregateType + WithAggregateId,
     AggregateIdOf<A>: Display,
 {
+    pub fn new() -> Self {
+        Self {
+            events: Arc::new(RwLock::new(EventMap::new())),
+        }
+    }
+
     pub fn with_events(events: impl IntoIterator<Item = DomainEvent<E, A>>) -> Self {
         let mut event_map = EventMap::with_capacity(4);
         events.into_iter().for_each(|ev| {
