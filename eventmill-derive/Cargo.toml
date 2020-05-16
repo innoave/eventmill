@@ -29,4 +29,4 @@ trybuild = "1"
 
 [[test]]
 name = "tests"
-path = "tests/all_tests.rs"
+path = "tests/_all_tests.rs"
