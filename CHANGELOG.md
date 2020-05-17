@@ -4,6 +4,21 @@ All user visible changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/), as described
 for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md)
 
+## 0.3.0 : 2020-05-17
+
+### features
+
+* new `derive(AggregateType)` macro to derive implementations for the `AggregateType`, 
+  `WithAggregateId` and `InitializeAggregate` traits.
+
+### examples
+
+* the `counter` example now makes use of the `derive(AggregateType)` macro.
+
+### docs
+
+* add examples to main README.md and eventmill-derive/README.md
+
 ## 0.2.0 : 2020-05-16
 
 ### breaking changes
