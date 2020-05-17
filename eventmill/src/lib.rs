@@ -42,7 +42,7 @@
 //! list of events (`Vec<NewEvent>`) will be enriched with the address properties of the aggregate to
 //! get the related `DomainEvent`s.
 //!
-#![doc(html_root_url = "https://docs.rs/eventmill/0.2.0")]
+#![doc(html_root_url = "https://docs.rs/eventmill/0.3.0")]
 //#![deny(missing_docs)]
 #![deny(unsafe_code, unstable_features)]
 #![warn(

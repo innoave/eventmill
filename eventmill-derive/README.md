@@ -19,15 +19,15 @@ main crate:
 
 ```toml
 [dependencies]
-eventmill = { version = "0.2", features = ["derive"] }
+eventmill = { version = "0.3", features = ["derive"] }
 ```
 
 or the alternative way:
 
 ```toml
 [dependencies]
-eventmill = "0.2"
-eventmill_derive = "0.2"
+eventmill = "0.3"
+eventmill_derive = "0.3"
 ```
 
 The examples below assume you bring in the macros the recommended way using the `derive` feature of
