@@ -1,1 +1,1 @@
-initSidebarItems({"derive":[["EventType",""]]});
+initSidebarItems({"derive":[["AggregateType",""],["EventType",""]]});

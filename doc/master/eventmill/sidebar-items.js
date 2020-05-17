@@ -1,1 +1,1 @@
-initSidebarItems({"derive":[["EventType",""]],"mod":[["aggregate",""],["command",""],["dispatch",""],["event",""],["inmemory_store",""],["metadata",""],["query",""],["store",""],["test_support",""]]});
+initSidebarItems({"derive":[["AggregateType",""],["EventType",""]],"mod":[["aggregate",""],["command",""],["dispatch",""],["event",""],["inmemory_store",""],["metadata",""],["query",""],["store",""],["test_support",""]]});
