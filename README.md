@@ -60,7 +60,7 @@ struct Counter {
 }
 ```
 
-Implement the business logic for applying commands to the aggregate:
+Implement the business logic for applying events to the aggregate:
 
 ```rust
 impl Aggregate<Incremented> for Counter {
