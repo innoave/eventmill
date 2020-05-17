@@ -3,7 +3,6 @@
 [![Latest Release]][crates.io]
 [![Documentation]][docs.rs]
 [![License]](LICENSE)
-[![Rustc Support 1.31+]][Rust 1.31]
 
 [Latest Release]: https://img.shields.io/crates/v/eventmill_derive.svg
 [crates.io]: https://crates.io/crates/eventmill_derive
@@ -12,8 +11,6 @@
 [License]: https://img.shields.io/badge/license-MIT%2FApache_2.0-blue.svg
 [MIT]: https://opensource.org/licenses/MIT
 [Apache-2.0]: https://www.apache.org/licenses/LICENSE-2.0
-[Rustc Support 1.31+]: https://img.shields.io/badge/rustc-1.31+-lightgray.svg
-[Rust 1.31]: https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html
 
 **Derive macros for convenient use of the `eventmill` crate**
 
