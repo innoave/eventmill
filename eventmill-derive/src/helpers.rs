@@ -1,3 +1,4 @@
+use proc_macro2::Ident;
 use syn::{Attribute, Field, Fields, FieldsNamed};
 
 pub fn find_attribute<'a>(
@@ -25,4 +26,8 @@ fn find_named_field<'a>(name: &str, fields: &'a FieldsNamed) -> Option<&'a Field
             false
         }
     })
+}
+
+pub fn list_field_idents(fields: &FieldsNamed) -> impl Iterator<Item = &Ident> {
+    fields.named.iter().filter_map(|fld| fld.ident.as_ref())
 }

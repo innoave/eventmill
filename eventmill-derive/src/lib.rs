@@ -28,7 +28,10 @@ pub fn derive_event_type(input: TokenStream) -> TokenStream {
     }
 }
 
-#[proc_macro_derive(AggregateType, attributes(aggregate_type, id_field))]
+#[proc_macro_derive(
+    AggregateType,
+    attributes(aggregate_type, id_field, initialize_with_defaults)
+)]
 pub fn derive_aggregate_type(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     // eprintln!("{:#?}", ast);

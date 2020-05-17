@@ -13,16 +13,17 @@ pub struct Turtle {
 
 #[test]
 fn main() {
-    use eventmill::WithAggregateId;
+    use eventmill::{AggregateType, WithAggregateId};
 
     let turtle = Turtle {
         id: "0815".to_string(),
-        x: 0.0,
-        y: 0.0,
-        direction: 0.0,
-        speed: 0.0,
-        pen: false,
+        x: -0.5,
+        y: 0.3,
+        direction: 0.42,
+        speed: 1.0,
+        pen: true,
     };
 
     assert_eq!(turtle.aggregate_id(), "0815");
+    assert_eq!(Turtle::aggregate_type(), "Turtle");
 }

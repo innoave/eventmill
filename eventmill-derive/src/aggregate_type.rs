@@ -1,8 +1,9 @@
-use crate::helpers::{find_attribute, find_struct_field};
+use crate::helpers::{find_attribute, find_struct_field, list_field_idents};
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
-use syn::{DataEnum, DataStruct, DataUnion, DeriveInput};
+use syn::spanned::Spanned;
+use syn::{DataEnum, DataStruct, DataUnion, DeriveInput, Fields};
 
 pub fn derive_aggregate_type_for_struct(
     ast: &DeriveInput,
@@ -24,9 +25,11 @@ pub fn derive_aggregate_type_for_struct(
         }
     };
 
-    if let Some(id_field_name) = find_attribute("id_field", &ast.attrs)
-        .and_then(|attr| Some(attr.parse_args::<Ident>().expect("field identifier")))
-    {
+    let maybe_init_attr = find_attribute("initialize_with_defaults", &ast.attrs);
+    let maybe_id_field_name = find_attribute("id_field", &ast.attrs)
+        .and_then(|attr| Some(attr.parse_args::<Ident>().expect("field identifier")));
+
+    if let Some(id_field_name) = &maybe_id_field_name {
         let maybe_id_field = find_struct_field(&id_field_name.to_string(), &struct_data.fields);
 
         if let Some(id_field) = maybe_id_field {
@@ -42,7 +45,32 @@ pub fn derive_aggregate_type_for_struct(
                         &self.#idfname
                     }
                 }
-            })
+            });
+
+            if let Some(_init_attr) = maybe_init_attr {
+                match &struct_data.fields {
+                    Fields::Named(named_fields) => {
+                        let fldnames =
+                            list_field_idents(named_fields).filter(|&ident| ident != idfname);
+
+                        output.extend(quote! {
+                            #[allow(unused_qualifications, unused_parens)]
+                            #[automatically_derived]
+                            impl #impl_generics ::eventmill::InitializeAggregate for #tname #ty_generics #where_clause {
+                                type State = Self;
+                                fn initialize(aggregate_id: #idftype) -> Self::State {
+                                    Self {
+                                        #idfname: aggregate_id,
+                                        #(#fldnames: Default::default(),)*
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    Fields::Unnamed(_) => panic!("tuple structs not supported"),
+                    Fields::Unit => panic!("unit structs not supported"),
+                };
+            }
         } else {
             output.extend(
                 syn::Error::new(
@@ -52,7 +80,14 @@ pub fn derive_aggregate_type_for_struct(
                 .to_compile_error(),
             );
         }
-    };
+    } else {
+        if let Some(init_attr) = maybe_init_attr {
+            output.extend(syn::Error::new(
+                init_attr.span(),
+                "missing id_field attribute! initialize_with_defaults attribute only allowed in combination with the id_field attribute"
+            ).to_compile_error());
+        }
+    }
 
     output.into()
 }
