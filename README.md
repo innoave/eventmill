@@ -109,7 +109,7 @@ fn main() {
 
     let increment_command = DomainCommand {
         aggregate_id,
-        aggregate_generation,
+        aggregate_generation: Generation::default(),
         data: Increment,
     };
 
