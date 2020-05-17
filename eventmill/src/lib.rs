@@ -89,4 +89,4 @@ pub use crate::store::{EventSink, EventSinkError, EventSource, EventSourceError}
 
 // Export derive macros
 #[cfg(feature = "derive")]
-pub use eventmill_derive::EventType;
+pub use eventmill_derive::{AggregateType, EventType};
