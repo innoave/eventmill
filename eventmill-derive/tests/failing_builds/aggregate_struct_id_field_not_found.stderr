@@ -1,0 +1,5 @@
+error: no field turtle_id on struct Turtle
+ --> $DIR/aggregate_struct_id_field_not_found.rs:4:12
+  |
+4 | #[id_field(turtle_id)]
+  |            ^^^^^^^^^

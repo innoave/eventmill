@@ -5,6 +5,7 @@ pub struct TurtleTurned {
     angle: f32,
 }
 
+#[test]
 fn main() {
     use eventmill::EventType;
 

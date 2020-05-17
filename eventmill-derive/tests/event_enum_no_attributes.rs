@@ -7,6 +7,7 @@ pub enum Turtle {
     Stopped,
 }
 
+#[test]
 fn main() {
     use eventmill::EventType;
 

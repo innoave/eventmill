@@ -2,18 +2,19 @@
 
 extern crate proc_macro;
 
-use crate::derive_aggregate_type::{
+mod aggregate_type;
+mod event_type;
+mod helpers;
+
+use crate::aggregate_type::{
     derive_aggregate_type_for_enum, derive_aggregate_type_for_struct,
     derive_aggregate_type_for_union,
 };
-use crate::derive_event_type::{
+use crate::event_type::{
     derive_event_type_for_enum, derive_event_type_for_struct, derive_event_type_for_union,
 };
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, Data, DeriveInput};
-
-mod derive_aggregate_type;
-mod derive_event_type;
 
 #[proc_macro_derive(EventType, attributes(event_type, event_type_version, event_source))]
 pub fn derive_event_type(input: TokenStream) -> TokenStream {
@@ -27,7 +28,7 @@ pub fn derive_event_type(input: TokenStream) -> TokenStream {
     }
 }
 
-#[proc_macro_derive(AggregateType, attributes(with_id))]
+#[proc_macro_derive(AggregateType, attributes(aggregate_type, id_field))]
 pub fn derive_aggregate_type(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     // eprintln!("{:#?}", ast);

@@ -1,6 +1,7 @@
 use eventmill_derive::AggregateType;
 
 #[derive(AggregateType, Debug)]
+#[id_field(turtle_id)]
 pub struct Turtle {
     id: String,
     x: f32,
@@ -10,9 +11,4 @@ pub struct Turtle {
     pen: bool,
 }
 
-#[test]
-fn main() {
-    use eventmill::AggregateType;
-
-    assert_eq!(Turtle::aggregate_type(), "Turtle");
-}
+fn main() {}
