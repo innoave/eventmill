@@ -2,9 +2,8 @@ use eventmill::dispatch::Core;
 use eventmill::event::wrap_events;
 use eventmill::inmemory_store::InMemoryStore;
 use eventmill::{
-    Aggregate, AggregateIdOf, AggregateType, DispatchCommand, DomainCommand, DomainEvent,
-    EventType, Generation, HandleCommand, InitializeAggregate, NewEvent, Sequence,
-    VersionedAggregate, WithAggregateId,
+    Aggregate, AggregateType, DispatchCommand, DomainCommand, DomainEvent, EventType, Generation,
+    HandleCommand, NewEvent, Sequence, VersionedAggregate,
 };
 use std::convert::Infallible;
 
@@ -24,31 +23,12 @@ struct Incremented;
 // Aggregate
 //
 
-#[derive(Debug)]
+#[derive(AggregateType, Debug)]
+#[id_field(id)]
+#[initialize_with_defaults]
 struct Counter {
     id: i32,
     hits: u64,
-}
-
-impl AggregateType for Counter {}
-
-impl WithAggregateId for Counter {
-    type Id = i32;
-
-    fn aggregate_id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-
-impl InitializeAggregate for Counter {
-    type State = Self;
-
-    fn initialize(aggregate_id: AggregateIdOf<Self>) -> Self::State {
-        Self {
-            id: aggregate_id,
-            hits: 0,
-        }
-    }
 }
 
 impl Aggregate<Incremented> for Counter {
