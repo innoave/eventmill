@@ -21,7 +21,7 @@ pub fn find_struct_field<'a>(name: &str, fields: &'a Fields) -> Option<&'a Field
 fn find_named_field<'a>(name: &str, fields: &'a FieldsNamed) -> Option<&'a Field> {
     fields.named.iter().find(|fld| {
         if let Some(ident) = &fld.ident {
-            &ident.to_string() == name
+            ident == name
         } else {
             false
         }

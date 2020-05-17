@@ -27,7 +27,7 @@ pub fn derive_aggregate_type_for_struct(
 
     let maybe_init_attr = find_attribute("initialize_with_defaults", &ast.attrs);
     let maybe_id_field_name = find_attribute("id_field", &ast.attrs)
-        .and_then(|attr| Some(attr.parse_args::<Ident>().expect("field identifier")));
+        .map(|attr| attr.parse_args::<Ident>().expect("field identifier"));
 
     if let Some(id_field_name) = &maybe_id_field_name {
         let maybe_id_field = find_struct_field(&id_field_name.to_string(), &struct_data.fields);
@@ -80,13 +80,11 @@ pub fn derive_aggregate_type_for_struct(
                 .to_compile_error(),
             );
         }
-    } else {
-        if let Some(init_attr) = maybe_init_attr {
-            output.extend(syn::Error::new(
-                init_attr.span(),
-                "missing id_field attribute! initialize_with_defaults attribute only allowed in combination with the id_field attribute"
-            ).to_compile_error());
-        }
+    } else if let Some(init_attr) = maybe_init_attr {
+        output.extend(syn::Error::new(
+            init_attr.span(),
+            "missing id_field attribute! initialize_with_defaults attribute only allowed in combination with the id_field attribute"
+        ).to_compile_error());
     }
 
     output.into()
