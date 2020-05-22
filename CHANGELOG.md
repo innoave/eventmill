@@ -4,6 +4,22 @@ All user visible changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/), as described
 for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md)
 
+## 0.4.0 : [unreleased]
+
+### breaking changes
+
+* introduce `DomainEventView` as the result type for reading events from the event store. This
+  avoids cloning of data and metadata in some cases. The related traits `Aggregate` and
+  `ReceiveEvent` are now getting `DomainEventView` as input instead of `DomainEvent`.
+* renamed method `EventSource::read_events` to `EventSource::read`
+* added method `read_from_offset` to `EventSource` trait
+
+### fixes
+
+* core applies new events to aggregate before appending them to the event store. this is problematic
+  if append to the event store fails.
+
+
 ## 0.3.0 : 2020-05-17
 
 ### features

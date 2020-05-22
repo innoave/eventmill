@@ -1,8 +1,7 @@
 use bigdecimal::BigDecimal;
-use eventmill::event::wrap_events;
+use eventmill::event::{wrap_events, DomainEventView};
 use eventmill::{
-    Aggregate, AggregateType, DomainEvent, EventType, HandleCommand, NewEvent, Sequence,
-    WithAggregateId,
+    Aggregate, AggregateType, EventType, HandleCommand, NewEvent, Sequence, WithAggregateId,
 };
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
@@ -71,25 +70,25 @@ impl WithAggregateId for BankAccount {
 }
 
 impl Aggregate<MoneyDeposited> for BankAccount {
-    fn apply_event(&mut self, event: &DomainEvent<MoneyDeposited, Self>) {
+    fn apply_event(&mut self, event: DomainEventView<'_, MoneyDeposited, Self>) {
         self.balance += event.data.amount.clone();
     }
 }
 
 impl Aggregate<MoneyWithdrawn> for BankAccount {
-    fn apply_event(&mut self, event: &DomainEvent<MoneyWithdrawn, Self>) {
+    fn apply_event(&mut self, event: DomainEventView<'_, MoneyWithdrawn, Self>) {
         self.balance -= event.data.amount.clone();
     }
 }
 
 impl Aggregate<MoneyTransferred> for BankAccount {
-    fn apply_event(&mut self, event: &DomainEvent<MoneyTransferred, Self>) {
+    fn apply_event(&mut self, event: DomainEventView<'_, MoneyTransferred, Self>) {
         match &event.data {
             MoneyTransferred::Credit(money_withdrawn) => {
-                self.apply_event(&event.transmute(money_withdrawn.clone()))
+                self.apply_event(event.transmute(money_withdrawn))
             }
             MoneyTransferred::Debit(money_deposited) => {
-                self.apply_event(&event.transmute(money_deposited.clone()))
+                self.apply_event(event.transmute(money_deposited))
             }
         }
     }
@@ -264,7 +263,7 @@ fn main() -> Result<(), BankAccountError> {
     println!("|-> generated one event: {:#?}", first_events);
 
     let first_events = wrap_events(&mut current_sequence, first_events).collect::<Vec<_>>();
-    bank_account.apply_all_events(&first_events);
+    bank_account.apply_all_events(first_events.iter().map(|ev| ev.as_view()));
 
     println!("state after applying deposit event: {:#?}", bank_account);
 
@@ -291,7 +290,7 @@ fn main() -> Result<(), BankAccountError> {
     let (mut bank_account, _another_bank_account) = aggregate;
 
     let transfer_events = wrap_events(&mut current_sequence, transfer_events).collect::<Vec<_>>();
-    bank_account.apply_event(&transfer_events[0]);
+    bank_account.apply_event(transfer_events[0].as_view());
 
     println!("state after applying transfer event: {:#?}", bank_account);
 

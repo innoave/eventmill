@@ -3,6 +3,7 @@ use proptest::prelude::*;
 
 mod core {
     use super::*;
+    use crate::event::DomainEventView;
     use crate::inmemory_store::InMemoryStore;
     use crate::{AggregateIdOf, NewEvent};
     use std::convert::Infallible;
@@ -43,7 +44,7 @@ mod core {
     }
 
     impl Aggregate<Incremented> for Counter {
-        fn apply_event(&mut self, _event: &DomainEvent<Incremented, Self>) {
+        fn apply_event(&mut self, _event: DomainEventView<'_, Incremented, Self>) {
             self.hits += 1;
         }
     }

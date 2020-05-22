@@ -1,5 +1,5 @@
 use crate::command::HandleCommand;
-use crate::event::{DomainEvent, NewEvent, Sequence};
+use crate::event::{DomainEventView, NewEvent, Sequence};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Display};
@@ -59,9 +59,12 @@ where
     E: 'static,
     Self: 'static + Sized + WithAggregateId,
 {
-    fn apply_event(&mut self, event: &DomainEvent<E, Self>);
+    fn apply_event(&mut self, event: DomainEventView<'_, E, Self>);
 
-    fn apply_all_events<'a>(&mut self, events: impl IntoIterator<Item = &'a DomainEvent<E, Self>>) {
+    fn apply_all_events<'a>(
+        &mut self,
+        events: impl IntoIterator<Item = DomainEventView<'a, E, Self>>,
+    ) {
         events.into_iter().for_each(|e| self.apply_event(e))
     }
 }
@@ -138,17 +141,12 @@ where
 
 impl<E, S> Aggregate<E> for VersionedAggregate<S>
 where
-    E: 'static + Clone,
+    E: 'static,
     S: Aggregate<E> + AggregateType,
 {
-    fn apply_event(&mut self, event: &DomainEvent<E, Self>) {
-        let event = DomainEvent::new(
-            event.aggregate_id.clone(),
-            event.sequence,
-            event.time,
-            event.data.clone(),
-        );
-        self.state.apply_event(&event);
+    fn apply_event(&mut self, event: DomainEventView<'_, E, Self>) {
+        let inner_data = event.data;
+        self.state.apply_event(event.transmute(inner_data));
         self.generation.increment();
     }
 }

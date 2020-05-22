@@ -38,6 +38,8 @@ where
     ReplayAggregateFailed(R),
     #[error("failed to append events to the event store: {0}")]
     AppendEventsFailed(W),
+    #[error("failed to read events from the event store: {0}")]
+    ReadEventsFailed(R),
     #[error("handling of command failed: {0}")]
     HandleCommandFailed(H),
     #[error("actual aggregate version ({actual}) does not match the assumed version ({assumed})")]
@@ -102,7 +104,7 @@ where
         // Replay aggregate
         let mut aggregate = VersionedAggregate::initialize(aggregate_id.clone());
         self.event_store
-            .read_events(&aggregate_id, &mut aggregate)
+            .read(&aggregate_id, &mut aggregate)
             .map_err(CoreError::ReplayAggregateFailed)?;
 
         // Check for generation conflict, which means whether the command was
@@ -115,19 +117,23 @@ where
         }
 
         let mut current_sequence = Sequence::from(aggregate.generation());
+        let offset = current_sequence;
 
         // Handle the command
         let new_events = aggregate
             .handle_command(data, context)
             .map_err(CoreError::HandleCommandFailed)?;
-        let domain_events = wrap_events(&mut current_sequence, new_events).collect::<Vec<_>>();
+        let domain_events = wrap_events(&mut current_sequence, new_events);
 
-        // Apply new domain events
-        aggregate.apply_all_events(&domain_events);
-
+        // Save new events in the event store
         self.event_store
             .append_batch(domain_events)
             .map_err(CoreError::AppendEventsFailed)?;
+
+        // Apply new domain events
+        self.event_store
+            .read_from_offset(&aggregate_id, offset, &mut aggregate)
+            .map_err(CoreError::ReadEventsFailed)?;
 
         Ok(aggregate)
     }

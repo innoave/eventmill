@@ -1,6 +1,7 @@
 use crate::aggregate::{AggregateIdOf, WithAggregateId};
 use crate::event::{DomainEvent, EventType};
 use crate::query::ReceiveEvent;
+use crate::Sequence;
 
 pub trait EventSink<E, A>
 where
@@ -22,9 +23,20 @@ pub type EventSinkError<S, E, A> = <S as EventSink<E, A>>::Error;
 pub trait EventSource<E, A> {
     type Error: std::error::Error;
 
-    fn read_events<R>(
+    fn read<R>(
         &self,
         aggregate_id: &AggregateIdOf<A>,
+        subscriber: &mut R,
+    ) -> Result<(), Self::Error>
+    where
+        E: EventType,
+        A: WithAggregateId,
+        R: ReceiveEvent<E, A>;
+
+    fn read_from_offset<R>(
+        &self,
+        aggregate_id: &AggregateIdOf<A>,
+        offset: Sequence,
         subscriber: &mut R,
     ) -> Result<(), Self::Error>
     where

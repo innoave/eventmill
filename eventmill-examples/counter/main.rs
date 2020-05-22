@@ -1,9 +1,9 @@
 use eventmill::dispatch::Core;
-use eventmill::event::wrap_events;
+use eventmill::event::{wrap_events, DomainEventView};
 use eventmill::inmemory_store::InMemoryStore;
 use eventmill::{
-    Aggregate, AggregateType, DispatchCommand, DomainCommand, DomainEvent, EventType, Generation,
-    HandleCommand, NewEvent, Sequence, VersionedAggregate,
+    Aggregate, AggregateType, DispatchCommand, DomainCommand, EventType, Generation, HandleCommand,
+    NewEvent, Sequence, VersionedAggregate,
 };
 use std::convert::Infallible;
 
@@ -32,7 +32,7 @@ struct Counter {
 }
 
 impl Aggregate<Incremented> for Counter {
-    fn apply_event(&mut self, _event: &DomainEvent<Incremented, Self>) {
+    fn apply_event(&mut self, _event: DomainEventView<'_, Incremented, Self>) {
         self.hits += 1;
     }
 }
@@ -44,7 +44,7 @@ impl Aggregate<Incremented> for Counter {
 #[derive(Debug, PartialEq)]
 struct Increment;
 
-impl HandleCommand<Increment, Self> for Counter {
+impl HandleCommand<Increment, Counter> for Counter {
     type Event = Incremented;
     type Error = Infallible;
     type Context = ();

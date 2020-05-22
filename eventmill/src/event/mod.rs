@@ -57,7 +57,7 @@ where
 
 impl<E, A> DomainEvent<E, A>
 where
-    A: AggregateType + WithAggregateId,
+    A: WithAggregateId,
 {
     pub fn new(
         aggregate_id: AggregateIdOf<A>,
@@ -90,8 +90,14 @@ where
         (self.data, self.metadata)
     }
 
-    pub fn aggregate_type(&self) -> &str {
-        <A as AggregateType>::aggregate_type()
+    pub fn as_view(&self) -> DomainEventView<'_, E, A> {
+        DomainEventView {
+            aggregate_id: &self.aggregate_id,
+            sequence: self.sequence,
+            time: self.time,
+            data: &self.data,
+            metadata: &self.metadata,
+        }
     }
 
     pub fn aggregate_id(&self) -> &AggregateIdOf<A> {
@@ -113,14 +119,44 @@ where
     pub fn metadata(&self) -> &Metadata {
         &self.metadata
     }
+}
 
-    pub fn transmute<U>(&self, other_data: U) -> DomainEvent<U, A> {
-        DomainEvent {
-            aggregate_id: self.aggregate_id.clone(),
+impl<E, A> DomainEvent<E, A>
+where
+    A: AggregateType + WithAggregateId,
+{
+    pub fn aggregate_type(&self) -> &str {
+        <A as AggregateType>::aggregate_type()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct DomainEventView<'a, E, A>
+where
+    A: WithAggregateId,
+{
+    pub aggregate_id: &'a AggregateIdOf<A>,
+    pub sequence: Sequence,
+    pub time: DateTime<Utc>,
+    pub data: &'a E,
+    pub metadata: &'a Metadata,
+}
+
+impl<'a, E, A> DomainEventView<'a, E, A>
+where
+    A: WithAggregateId,
+{
+    pub fn transmute<U, B>(self, other_data: &'a U) -> DomainEventView<'_, U, B>
+    where
+        B: WithAggregateId,
+        &'a AggregateIdOf<A>: Into<&'a AggregateIdOf<B>>,
+    {
+        DomainEventView {
+            aggregate_id: self.aggregate_id.into(),
             sequence: self.sequence,
             time: self.time,
             data: other_data,
-            metadata: self.metadata.clone(),
+            metadata: self.metadata,
         }
     }
 }

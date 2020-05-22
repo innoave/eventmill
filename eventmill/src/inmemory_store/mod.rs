@@ -2,6 +2,7 @@ use crate::aggregate::{AggregateIdOf, AggregateType, WithAggregateId};
 use crate::event::{DomainEvent, EventType};
 use crate::query::ReceiveEvent;
 use crate::store::{EventSink, EventSource};
+use crate::Sequence;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, RwLock};
@@ -107,7 +108,7 @@ where
 {
     type Error = Error;
 
-    fn read_events<R>(
+    fn read<R>(
         &self,
         aggregate_id: &AggregateIdOf<A>,
         subscriber: &mut R,
@@ -124,7 +125,38 @@ where
         event_map
             .get(&aggregate_id.to_string())
             .iter()
-            .for_each(|events| events.iter().for_each(|ev| subscriber.receive_event(ev)));
+            .for_each(|events| {
+                events
+                    .iter()
+                    .for_each(|ev| subscriber.receive_event(ev.as_view()))
+            });
+        Ok(())
+    }
+
+    fn read_from_offset<R>(
+        &self,
+        aggregate_id: &AggregateIdOf<A>,
+        offset: Sequence,
+        subscriber: &mut R,
+    ) -> Result<(), Self::Error>
+    where
+        E: EventType,
+        A: WithAggregateId,
+        R: ReceiveEvent<E, A>,
+    {
+        let event_map = self
+            .events
+            .read()
+            .map_err(|err| Error::NoReadAccess(err.to_string()))?;
+        event_map
+            .get(&aggregate_id.to_string())
+            .iter()
+            .for_each(|events| {
+                events
+                    .iter()
+                    .skip(offset.number() as usize)
+                    .for_each(|ev| subscriber.receive_event(ev.as_view()))
+            });
         Ok(())
     }
 }
