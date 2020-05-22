@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["wrap_events",""],["wrap_events_with_metadata",""]],"struct":[["DomainEvent",""],["NewEvent",""],["Sequence",""]],"trait":[["EventType",""]]});
+initSidebarItems({"fn":[["wrap_events",""],["wrap_events_with_metadata",""]],"struct":[["DomainEvent",""],["DomainEventView",""],["NewEvent",""],["Sequence",""]],"trait":[["EventType",""]]});
