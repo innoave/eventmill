@@ -34,11 +34,15 @@ impl<C, A> DomainCommand<C, A>
 where
     A: WithAggregateId,
 {
-    pub fn new(aggregate_id: AggregateIdOf<A>, aggregate_generation: Generation, data: C) -> Self {
+    pub fn new(
+        aggregate_id: AggregateIdOf<A>,
+        aggregate_generation: impl Into<Generation>,
+        data: impl Into<C>,
+    ) -> Self {
         Self {
             aggregate_id,
-            aggregate_generation,
-            data,
+            aggregate_generation: aggregate_generation.into(),
+            data: data.into(),
         }
     }
 }

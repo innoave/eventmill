@@ -92,21 +92,25 @@ where
     A: WithAggregateId,
 {
     pub fn new(
-        aggregate_id: AggregateIdOf<A>,
+        aggregate_id: impl Into<AggregateIdOf<A>>,
         sequence: Sequence,
         time: DateTime<Utc>,
-        data: E,
+        data: impl Into<E>,
     ) -> Self {
         Self {
-            aggregate_id,
+            aggregate_id: aggregate_id.into(),
             sequence,
             time,
-            data,
+            data: data.into(),
             metadata: Metadata::new(),
         }
     }
 
-    pub fn new_now(aggregate_id: AggregateIdOf<A>, sequence: Sequence, data: E) -> Self {
+    pub fn new_now(
+        aggregate_id: impl Into<AggregateIdOf<A>>,
+        sequence: Sequence,
+        data: impl Into<E>,
+    ) -> Self {
         Self::new(aggregate_id, sequence, Utc::now(), data)
     }
 
@@ -291,8 +295,11 @@ impl<E, A> NewEvent<E, A>
 where
     A: WithAggregateId,
 {
-    pub fn new(aggregate_id: AggregateIdOf<A>, data: E) -> Self {
-        Self { aggregate_id, data }
+    pub fn new(aggregate_id: impl Into<AggregateIdOf<A>>, data: impl Into<E>) -> Self {
+        Self {
+            aggregate_id: aggregate_id.into(),
+            data: data.into(),
+        }
     }
 
     pub fn unwrap(self) -> (AggregateIdOf<A>, E) {
