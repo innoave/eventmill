@@ -19,14 +19,14 @@ main crate:
 
 ```toml
 [dependencies]
-eventmill = { version = "0.3", features = ["derive"] }
+eventmill = { version = "0.4", features = ["derive"] }
 ```
 
 or the alternative way:
 
 ```toml
 [dependencies]
-eventmill = "0.3"
+eventmill = "0.4"
 eventmill_derive = "0.3"
 ```
 
