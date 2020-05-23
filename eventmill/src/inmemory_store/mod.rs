@@ -1,8 +1,7 @@
-use crate::aggregate::{AggregateIdOf, AggregateType, WithAggregateId};
-use crate::event::{DomainEvent, EventType};
+use crate::aggregate::{AggregateIdOf, WithAggregateId};
+use crate::event::{DomainEvent, EventType, Sequence};
 use crate::query::ReceiveEvent;
 use crate::store::{EventSink, EventSource};
-use crate::Sequence;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, RwLock};
@@ -40,7 +39,7 @@ where
 
 impl<E, A> InMemoryStore<E, A>
 where
-    A: AggregateType + WithAggregateId,
+    A: WithAggregateId,
     AggregateIdOf<A>: Display,
 {
     pub fn new() -> Self {
@@ -66,7 +65,7 @@ where
 impl<E, A> EventSink<E, A> for InMemoryStore<E, A>
 where
     E: EventType,
-    A: AggregateType + WithAggregateId,
+    A: WithAggregateId,
     AggregateIdOf<A>: Display,
 {
     type Error = Error;
@@ -76,6 +75,7 @@ where
             .events
             .write()
             .map_err(|err| Error::NoWriteAccess(err.to_string()))?;
+
         event_map
             .entry(event.aggregate_id.to_string())
             .or_insert_with(|| Vec::with_capacity(4))
@@ -91,6 +91,7 @@ where
             .events
             .write()
             .map_err(|err| Error::NoWriteAccess(err.to_string()))?;
+
         events.into_iter().for_each(|ev| {
             event_map
                 .entry(ev.aggregate_id.to_string())
@@ -103,6 +104,7 @@ where
 
 impl<E, A> EventSource<E, A> for InMemoryStore<E, A>
 where
+    E: EventType,
     A: WithAggregateId,
     AggregateIdOf<A>: Display,
 {
@@ -114,17 +116,16 @@ where
         subscriber: &mut R,
     ) -> Result<(), Self::Error>
     where
-        E: EventType,
-        A: WithAggregateId,
         R: ReceiveEvent<E, A>,
     {
         let event_map = self
             .events
             .read()
             .map_err(|err| Error::NoReadAccess(err.to_string()))?;
+
         event_map
             .get(&aggregate_id.to_string())
-            .iter()
+            .into_iter()
             .for_each(|events| {
                 events
                     .iter()
@@ -140,17 +141,16 @@ where
         subscriber: &mut R,
     ) -> Result<(), Self::Error>
     where
-        E: EventType,
-        A: WithAggregateId,
         R: ReceiveEvent<E, A>,
     {
         let event_map = self
             .events
             .read()
             .map_err(|err| Error::NoReadAccess(err.to_string()))?;
+
         event_map
             .get(&aggregate_id.to_string())
-            .iter()
+            .into_iter()
             .for_each(|events| {
                 events
                     .iter()
