@@ -18,7 +18,8 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 
 * core applies new events to aggregate before appending them to the event store. this is problematic
   if append to the event store fails.
-
+* implementation of Clone and PartialEq for DomainEvent, DomainEventView and NewEvent no longer 
+  require that the type parameter 'A' implements these traits.
 
 ## 0.3.0 : 2020-05-17
 
