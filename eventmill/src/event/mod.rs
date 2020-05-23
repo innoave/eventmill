@@ -43,7 +43,7 @@ impl From<Generation> for Sequence {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DomainEvent<E, A>
 where
     A: WithAggregateId,
@@ -53,6 +53,38 @@ where
     pub time: DateTime<Utc>,
     pub data: E,
     pub metadata: Metadata,
+}
+
+/// implement PartialEq without requiring type parameter A to implement PartialEq
+impl<E, A> PartialEq for DomainEvent<E, A>
+where
+    E: PartialEq,
+    A: WithAggregateId,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.aggregate_id.eq(&other.aggregate_id)
+            && self.sequence.eq(&other.sequence)
+            && self.time.eq(&other.time)
+            && self.data.eq(&other.data)
+            && self.metadata.eq(&other.metadata)
+    }
+}
+
+/// implement Clone without requiring type parameter A to implement Clone
+impl<E, A> Clone for DomainEvent<E, A>
+where
+    E: Clone,
+    A: WithAggregateId,
+{
+    fn clone(&self) -> Self {
+        Self {
+            aggregate_id: self.aggregate_id.clone(),
+            sequence: self.sequence,
+            time: self.time,
+            data: self.data.clone(),
+            metadata: self.metadata.clone(),
+        }
+    }
 }
 
 impl<E, A> DomainEvent<E, A>
@@ -130,7 +162,7 @@ where
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug)]
 pub struct DomainEventView<'a, E, A>
 where
     A: WithAggregateId,
@@ -140,6 +172,37 @@ where
     pub time: DateTime<Utc>,
     pub data: &'a E,
     pub metadata: &'a Metadata,
+}
+
+/// implement PartialEq without requiring type parameter A to implement PartialEq
+impl<'a, E, A> PartialEq for DomainEventView<'a, E, A>
+where
+    E: PartialEq,
+    A: WithAggregateId,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.aggregate_id.eq(other.aggregate_id)
+            && self.sequence.eq(&other.sequence)
+            && self.time.eq(&other.time)
+            && self.data.eq(other.data)
+            && self.metadata.eq(other.metadata)
+    }
+}
+
+/// implement Clone without requiring type parameter A to implement Clone
+impl<'a, E, A> Clone for DomainEventView<'a, E, A>
+where
+    A: WithAggregateId,
+{
+    fn clone(&self) -> Self {
+        Self {
+            aggregate_id: self.aggregate_id,
+            sequence: self.sequence,
+            time: self.time,
+            data: self.data,
+            metadata: self.metadata,
+        }
+    }
 }
 
 impl<'a, E, A> DomainEventView<'a, E, A>
@@ -159,15 +222,60 @@ where
             metadata: self.metadata,
         }
     }
+
+    pub fn aggregate_id(&self) -> &AggregateIdOf<A> {
+        self.aggregate_id
+    }
+
+    pub fn sequence(&self) -> Sequence {
+        self.sequence
+    }
+
+    pub fn time(&self) -> DateTime<Utc> {
+        self.time
+    }
+
+    pub fn data(&self) -> &E {
+        self.data
+    }
+
+    pub fn metadata(&self) -> &Metadata {
+        self.metadata
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NewEvent<E, A>
 where
     A: WithAggregateId,
 {
     pub aggregate_id: AggregateIdOf<A>,
     pub data: E,
+}
+
+/// implement PartialEq without requiring type parameter A to implement PartialEq
+impl<E, A> PartialEq for NewEvent<E, A>
+where
+    E: PartialEq,
+    A: WithAggregateId,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.aggregate_id.eq(&other.aggregate_id) && self.data.eq(&other.data)
+    }
+}
+
+/// implement Clone without requiring type parameter A to implement Clone
+impl<E, A> Clone for NewEvent<E, A>
+where
+    E: Clone,
+    A: WithAggregateId,
+{
+    fn clone(&self) -> Self {
+        Self {
+            aggregate_id: self.aggregate_id.clone(),
+            data: self.data.clone(),
+        }
+    }
 }
 
 impl<E, A> From<(AggregateIdOf<A>, E)> for NewEvent<E, A>

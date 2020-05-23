@@ -69,6 +69,235 @@ mod sequence {
     }
 }
 
+mod domain_event {
+    use super::*;
+
+    #[derive(Debug, PartialEq)]
+    struct Moved {
+        velocity: i32,
+    }
+
+    #[derive(Debug)]
+    struct Turtle {
+        id: u32,
+        pos_x: i32,
+        pos_y: i32,
+    }
+
+    impl WithAggregateId for Turtle {
+        type Id = u32;
+
+        fn aggregate_id(&self) -> &Self::Id {
+            &self.id
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn two_events_are_equal_if_all_fields_are_equal(
+            velocity in any::<i32>(),
+            aggregate_id in any::<u32>(),
+            sequence in any::<u64>(),
+        ) {
+            let time = Utc::now();
+
+            let event1: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id,
+                sequence: Sequence(sequence),
+                time,
+                data: Moved { velocity },
+                metadata: Metadata::default(),
+            };
+
+            let event2: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id,
+                sequence: Sequence(sequence),
+                time,
+                data: Moved { velocity },
+                metadata: Metadata::default(),
+            };
+
+            prop_assert_eq!(event1, event2);
+        }
+
+        #[test]
+        fn two_events_are_not_equal_if_the_data_fields_are_different(
+            (velocity1, velocity2) in (any::<i32>(), any::<i32>()).prop_filter(
+                "any two velocities that are not equal",
+                |(velo1, velo2)| velo1 != velo2,
+            ),
+            aggregate_id in any::<u32>(),
+            sequence in any::<u64>(),
+        ) {
+            let time = Utc::now();
+
+            let event1: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id,
+                sequence: Sequence(sequence),
+                time,
+                data: Moved { velocity: velocity1 },
+                metadata: Metadata::default(),
+            };
+
+            let event2: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id,
+                sequence: Sequence(sequence),
+                time,
+                data: Moved { velocity: velocity2 },
+                metadata: Metadata::default(),
+            };
+
+            prop_assert_ne!(event1, event2);
+        }
+
+        #[test]
+        fn two_events_are_not_equal_if_the_id_fields_are_different(
+            velocity in any::<i32>(),
+            (aggregate_id1, aggregate_id2) in (any::<u32>(), any::<u32>()).prop_filter(
+                "any two aggregate ids that are not equal",
+                |(id1, id2)| id1 != id2,
+            ),
+            sequence in any::<u64>(),
+        ) {
+            let time = Utc::now();
+
+            let event1: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id: aggregate_id1,
+                sequence: Sequence(sequence),
+                time,
+                data: Moved { velocity },
+                metadata: Metadata::default(),
+            };
+
+            let event2: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id: aggregate_id2,
+                sequence: Sequence(sequence),
+                time,
+                data: Moved { velocity },
+                metadata: Metadata::default(),
+            };
+
+            prop_assert_ne!(event1, event2);
+        }
+
+        #[test]
+        fn two_events_are_not_equal_if_the_sequence_fields_are_different(
+            velocity in any::<i32>(),
+            aggregate_id in any::<u32>(),
+            (sequence1, sequence2) in (any::<u64>(), any::<u64>()).prop_filter(
+                "any two sequence numbers that are not equal",
+                |(seq1, seq2)| seq1 != seq2,
+            ),
+        ) {
+            let time = Utc::now();
+
+            let event1: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id,
+                sequence: Sequence(sequence1),
+                time,
+                data: Moved { velocity },
+                metadata: Metadata::default(),
+            };
+
+            let event2: DomainEvent<_, Turtle> = DomainEvent {
+                aggregate_id,
+                sequence: Sequence(sequence2),
+                time,
+                data: Moved { velocity },
+                metadata: Metadata::default(),
+            };
+
+            prop_assert_ne!(event1, event2);
+        }
+    }
+}
+
+mod new_event {
+    use super::*;
+
+    #[derive(Debug, PartialEq)]
+    struct Moved {
+        velocity: i32,
+    }
+
+    #[derive(Debug)]
+    struct Turtle {
+        id: u32,
+        pos_x: i32,
+        pos_y: i32,
+    }
+
+    impl WithAggregateId for Turtle {
+        type Id = u32;
+
+        fn aggregate_id(&self) -> &Self::Id {
+            &self.id
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn two_events_are_equal_if_all_fields_are_equal(
+            velocity in any::<i32>(),
+            aggregate_id in any::<u32>(),
+        ) {
+            let event1: NewEvent<_, Turtle> = NewEvent {
+                aggregate_id,
+                data: Moved { velocity },
+            };
+
+            let event2: NewEvent<_, Turtle> = NewEvent {
+                aggregate_id,
+                data: Moved { velocity },
+            };
+
+            prop_assert_eq!(event1, event2);
+        }
+
+        #[test]
+        fn two_events_are_not_equal_if_the_data_fields_are_different(
+            (velocity1, velocity2) in (any::<i32>(), any::<i32>()).prop_filter(
+                "any two velocities that are not equal",
+                |(velo1, velo2)| velo1 != velo2,
+            ),
+            aggregate_id in any::<u32>(),
+        ) {
+            let event1: NewEvent<_, Turtle> = NewEvent {
+                aggregate_id,
+                data: Moved { velocity: velocity1 },
+            };
+
+            let event2: NewEvent<_, Turtle> = NewEvent {
+                aggregate_id,
+                data: Moved { velocity: velocity2 },
+            };
+
+            prop_assert_ne!(event1, event2);
+        }
+
+        #[test]
+        fn two_events_are_not_equal_if_the_id_fields_are_different(
+            velocity in any::<i32>(),
+            (aggregate_id1, aggregate_id2) in (any::<u32>(), any::<u32>()).prop_filter(
+                "any two aggregate ids that are not equal",
+                |(id1, id2)| id1 != id2,
+            ),
+        ) {
+            let event1: NewEvent<_, Turtle> = NewEvent {
+                aggregate_id: aggregate_id1,
+                data: Moved { velocity },
+            };
+
+            let event2: NewEvent<_, Turtle> = NewEvent {
+                aggregate_id: aggregate_id2,
+                data: Moved { velocity },
+            };
+
+            prop_assert_ne!(event1, event2);
+        }
+    }
+}
+
 mod wrap_events {
     use super::*;
     use chrono::Utc;
