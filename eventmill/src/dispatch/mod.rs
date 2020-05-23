@@ -79,7 +79,7 @@ where
         + WithAggregateId
         + HandleCommand<C, A>
         + InitializeAggregate<State = A>,
-    <A as HandleCommand<C, A>>::Event: 'static + EventType + Clone,
+    <A as HandleCommand<C, A>>::Event: 'static + EventType,
     S: EventSource<
             <VersionedAggregate<A> as HandleCommand<C, VersionedAggregate<A>>>::Event,
             VersionedAggregate<A>,
