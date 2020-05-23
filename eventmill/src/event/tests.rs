@@ -72,7 +72,7 @@ mod sequence {
 mod domain_event {
     use super::*;
 
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, Clone, PartialEq)]
     struct Moved {
         velocity: i32,
     }
@@ -90,6 +90,21 @@ mod domain_event {
         fn aggregate_id(&self) -> &Self::Id {
             &self.id
         }
+    }
+
+    #[test]
+    fn can_be_cloned_without_requiring_aggregate_to_implement_clone() {
+        let event: DomainEvent<_, Turtle> = DomainEvent {
+            aggregate_id: 1,
+            sequence: Default::default(),
+            time: Utc::now(),
+            data: Moved { velocity: 42 },
+            metadata: Default::default(),
+        };
+
+        let cloned_event = event.clone();
+
+        assert_eq!(cloned_event, event);
     }
 
     proptest! {
@@ -212,10 +227,10 @@ mod domain_event {
     }
 }
 
-mod new_event {
+mod domain_event_view {
     use super::*;
 
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, Clone, PartialEq)]
     struct Moved {
         velocity: i32,
     }
@@ -233,6 +248,59 @@ mod new_event {
         fn aggregate_id(&self) -> &Self::Id {
             &self.id
         }
+    }
+
+    #[test]
+    fn can_be_cloned_without_requiring_aggregate_to_implement_clone() {
+        let event: DomainEvent<_, Turtle> = DomainEvent {
+            aggregate_id: 1,
+            sequence: Default::default(),
+            time: Utc::now(),
+            data: Moved { velocity: 42 },
+            metadata: Default::default(),
+        };
+
+        let event_view = event.as_view();
+
+        let cloned_event_view = event_view.clone();
+
+        assert_eq!(cloned_event_view, event_view);
+    }
+}
+
+mod new_event {
+    use super::*;
+
+    #[derive(Debug, Clone, PartialEq)]
+    struct Moved {
+        velocity: i32,
+    }
+
+    #[derive(Debug)]
+    struct Turtle {
+        id: u32,
+        pos_x: i32,
+        pos_y: i32,
+    }
+
+    impl WithAggregateId for Turtle {
+        type Id = u32;
+
+        fn aggregate_id(&self) -> &Self::Id {
+            &self.id
+        }
+    }
+
+    #[test]
+    fn can_be_cloned_without_requiring_aggregate_to_implement_clone() {
+        let event: NewEvent<_, Turtle> = NewEvent {
+            aggregate_id: 1,
+            data: Moved { velocity: 42 },
+        };
+
+        let cloned_event = event.clone();
+
+        assert_eq!(cloned_event, event);
     }
 
     proptest! {
