@@ -1,5 +1,6 @@
 use crate::aggregate::{AggregateIdOf, Generation, WithAggregateId};
 use crate::event::NewEvent;
+use crate::VersionedAggregate;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -28,6 +29,19 @@ where
     pub aggregate_id: AggregateIdOf<A>,
     pub aggregate_generation: Generation,
     pub data: C,
+}
+
+impl<C, A> From<(C, &VersionedAggregate<A>)> for DomainCommand<C, A>
+where
+    A: WithAggregateId,
+{
+    fn from((command, aggregate): (C, &VersionedAggregate<A>)) -> Self {
+        Self {
+            aggregate_id: aggregate.state().aggregate_id().clone(),
+            aggregate_generation: aggregate.generation(),
+            data: command,
+        }
+    }
 }
 
 impl<C, A> DomainCommand<C, A>

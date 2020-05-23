@@ -19,6 +19,9 @@ publish = false
 
 [dev-dependencies]
 eventmill = { features = ["derive"], path = "../eventmill" }
+derive_more = "0.99"
+#enum_dispatch = "0.3"
+#typetag = "0.1"
 
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
@@ -32,3 +35,7 @@ path = "counter/main.rs"
 [[example]]
 name = "banking"
 path = "banking/main.rs"
+
+[[example]]
+name = "turtle"
+path = "turtle/main.rs"

@@ -14,12 +14,20 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 * renamed method `EventSource::read_events` to `EventSource::read`
 * added method `read_from_offset` to `EventSource` trait
 
+### features
+
+* the `new` methods of `DomainCommand`, `NewEvent` and `DomainEvent` use `Into` trait to be more
+  flexible in passing arguments.
+* implement `From` trait for turning a custom command and a reference to the current aggregate
+  state into a new `DomainCommand` (see the [turtle example](eventmill-examples/turtle/main.rs)
+  on how to use it). 
+
 ### fixes
 
 * core applies new events to aggregate before appending them to the event store. this is problematic
   if append to the event store fails.
-* implementation of Clone and PartialEq for DomainEvent, DomainEventView and NewEvent no longer 
-  require that the type parameter 'A' implements these traits.
+* implementation of `Clone` and `PartialEq` for `DomainEvent`, `DomainEventView` and `NewEvent` no
+  longer require that the type parameter `A` implements these traits.
 
 ## 0.3.0 : 2020-05-17
 
