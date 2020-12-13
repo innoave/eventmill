@@ -252,7 +252,7 @@ fn main() -> Result<(), BankAccountError> {
 
     let deposit = DepositCash {
         account_code: "0815".to_string(),
-        amount: 120.50.into(),
+        amount: BigDecimal::new(12050.into(), 2),
     };
 
     println!("handling first command: {:#?}", deposit);

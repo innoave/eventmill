@@ -25,8 +25,8 @@ serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 
 [dev-dependencies]
-bigdecimal = { version = "0.1", features = ["serde"] }
-proptest = "0.9"
+bigdecimal = { version = "0.2", features = ["serde"] }
+proptest = "0.10"
 version-sync = "0.9"
 
 [package.metadata.docs.rs]
