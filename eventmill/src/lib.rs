@@ -76,15 +76,22 @@ pub mod test_support;
 // * types or functions with names that would be ambiguous if exported without
 //   the module name.
 //
+#[doc(inline)]
 pub use crate::aggregate::{
     Aggregate, AggregateIdOf, AggregateState, AggregateType, Generation, InitializeAggregate,
     VersionedAggregate, WithAggregateId,
 };
+#[doc(inline)]
 pub use crate::command::{DomainCommand, HandleCommand};
+#[doc(inline)]
 pub use crate::dispatch::{DispatchCommand, DispatchEvent};
-pub use crate::event::{DomainEvent, EventType, NewEvent, Sequence};
+#[doc(inline)]
+pub use crate::event::{DomainEvent, DomainEventView, EventType, NewEvent, Sequence};
+#[doc(inline)]
 pub use crate::metadata::Metadata;
+#[doc(inline)]
 pub use crate::query::ReceiveEvent;
+#[doc(inline)]
 pub use crate::store::{EventSink, EventSinkError, EventSource, EventSourceError};
 
 // Export derive macros
