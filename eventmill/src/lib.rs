@@ -43,7 +43,6 @@
 //! get the related `DomainEvent`s.
 //!
 #![doc(html_root_url = "https://docs.rs/eventmill/0.4.0")]
-//#![deny(missing_docs)]
 #![deny(unsafe_code, unstable_features)]
 #![warn(
     bare_trait_objects,
@@ -52,10 +51,13 @@
     rust_2018_idioms,
     trivial_casts,
     trivial_numeric_casts,
+    unused_crate_dependencies,
     unused_extern_crates,
     unused_import_braces,
-    unused_qualifications
+    unused_qualifications,
+    variant_size_differences
 )]
+//#![deny(missing_docs)]  //TODO uncomment when working on docs
 
 pub mod aggregate;
 pub mod command;
@@ -97,3 +99,8 @@ pub use crate::store::{EventSink, EventSinkError, EventSource, EventSourceError}
 // Export derive macros
 #[cfg(feature = "derive")]
 pub use eventmill_derive::{AggregateType, EventType};
+
+#[cfg(test)]
+mod tests {
+    use version_sync as _;
+}

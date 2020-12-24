@@ -390,7 +390,7 @@ mod wrap_events {
     }
 
     proptest! {
-        #[test]
+        #[test] #[allow(clippy::needless_collect)]
         fn number_of_returned_events_is_equal_to_the_number_of_input_events(
             number_of_events in (0..=404_usize)
         ) {
@@ -549,7 +549,7 @@ mod wrap_events_with_metadata {
     }
 
     proptest! {
-        #[test]
+        #[test] #[allow(clippy::needless_collect)]
         fn number_of_returned_events_is_equal_to_the_number_of_input_events(
             number_of_events in (0..=404_usize)
         ) {
