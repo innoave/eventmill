@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Generation",""],["VersionedAggregate",""]],"trait":[["Aggregate",""],["AggregateState",""],["AggregateType",""],["InitializeAggregate",""],["WithAggregateId",""]],"type":[["AggregateIdOf",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Generation",""],["VersionedAggregate",""]],"trait":[["Aggregate",""],["AggregateState",""],["AggregateType",""],["InitializeAggregate",""],["WithAggregateId",""]],"type":[["AggregateIdOf",""]]};

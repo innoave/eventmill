@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Value",""]],"struct":[["Attribute",""]],"trait":[["Attributes",""]],"type":[["Key",""],["Metadata",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Value",""]],"struct":[["Attribute",""]],"trait":[["Attributes",""]],"type":[["Key",""],["Metadata",""]]};

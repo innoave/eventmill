@@ -1,15 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `eventmill/src/command.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>command.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../eventmill/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
-                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `eventmill/src/command.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../eventmill/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
 <span id="10">10</span>
 <span id="11">11</span>
 <span id="12">12</span>
@@ -63,68 +60,67 @@
 <span id="60">60</span>
 <span id="61">61</span>
 <span id="62">62</span>
-</pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">aggregate</span>::{<span class="ident">AggregateIdOf</span>, <span class="ident">Generation</span>, <span class="ident">WithAggregateId</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event</span>::<span class="ident">NewEvent</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">VersionedAggregate</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::aggregate::{AggregateIdOf, Generation, WithAggregateId};
+<span class="kw">use </span><span class="kw">crate</span>::event::NewEvent;
+<span class="kw">use </span><span class="kw">crate</span>::VersionedAggregate;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">EventOf</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HandleCommand</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Event</span>;
+<span class="kw">pub type </span>EventOf&lt;H, C, A&gt; = &lt;H <span class="kw">as </span>HandleCommand&lt;C, A&gt;&gt;::Event;
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HandleCommand</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">WithAggregateId</span>,
+<span class="kw">pub trait </span>HandleCommand&lt;C, A&gt;
+<span class="kw">where
+    </span>A: WithAggregateId,
 {
-    <span class="kw">type</span> <span class="ident">Event</span>;
-    <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Context</span>;
+    <span class="kw">type </span>Event;
+    <span class="kw">type </span>Error: std::error::Error;
+    <span class="kw">type </span>Context;
 
-    <span class="kw">fn</span> <span class="ident">handle_command</span>(
+    <span class="kw">fn </span>handle_command(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">command</span>: <span class="ident">C</span>,
-        <span class="ident">context</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Context</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NewEvent</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Event</span>, <span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
+        command: C,
+        context: <span class="kw-2">&amp;</span><span class="self">Self</span>::Context,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;NewEvent&lt;<span class="self">Self</span>::Event, A&gt;&gt;, <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DomainCommand</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">WithAggregateId</span>,
+<span class="attribute">#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>DomainCommand&lt;C, A&gt;
+<span class="kw">where
+    </span>A: WithAggregateId,
 {
-    <span class="kw">pub</span> <span class="ident">aggregate_id</span>: <span class="ident">AggregateIdOf</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">aggregate_generation</span>: <span class="ident">Generation</span>,
-    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">C</span>,
+    <span class="kw">pub </span>aggregate_id: AggregateIdOf&lt;A&gt;,
+    <span class="kw">pub </span>aggregate_generation: Generation,
+    <span class="kw">pub </span>data: C,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">C</span>, <span class="kw-2">&amp;</span><span class="ident">VersionedAggregate</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DomainCommand</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">WithAggregateId</span>,
+<span class="kw">impl</span>&lt;C, A&gt; From&lt;(C, <span class="kw-2">&amp;</span>VersionedAggregate&lt;A&gt;)&gt; <span class="kw">for </span>DomainCommand&lt;C, A&gt;
+<span class="kw">where
+    </span>A: WithAggregateId,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">command</span>, <span class="ident">aggregate</span>): (<span class="ident">C</span>, <span class="kw-2">&amp;</span><span class="ident">VersionedAggregate</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">aggregate_id</span>: <span class="ident">aggregate</span>.<span class="ident">state</span>().<span class="ident">aggregate_id</span>().<span class="ident">clone</span>(),
-            <span class="ident">aggregate_generation</span>: <span class="ident">aggregate</span>.<span class="ident">generation</span>(),
-            <span class="ident">data</span>: <span class="ident">command</span>,
+    <span class="kw">fn </span>from((command, aggregate): (C, <span class="kw-2">&amp;</span>VersionedAggregate&lt;A&gt;)) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            aggregate_id: aggregate.state().aggregate_id().clone(),
+            aggregate_generation: aggregate.generation(),
+            data: command,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="ident">DomainCommand</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">WithAggregateId</span>,
+<span class="kw">impl</span>&lt;C, A&gt; DomainCommand&lt;C, A&gt;
+<span class="kw">where
+    </span>A: WithAggregateId,
 {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">aggregate_id</span>: <span class="ident">AggregateIdOf</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
-        <span class="ident">aggregate_generation</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Generation</span><span class="op">&gt;</span>,
-        <span class="ident">data</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">aggregate_id</span>,
-            <span class="ident">aggregate_generation</span>: <span class="ident">aggregate_generation</span>.<span class="ident">into</span>(),
-            <span class="ident">data</span>: <span class="ident">data</span>.<span class="ident">into</span>(),
+    <span class="kw">pub fn </span>new(
+        aggregate_id: AggregateIdOf&lt;A&gt;,
+        aggregate_generation: <span class="kw">impl </span>Into&lt;Generation&gt;,
+        data: <span class="kw">impl </span>Into&lt;C&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            aggregate_id,
+            aggregate_generation: aggregate_generation.into(),
+            data: data.into(),
         }
     }
 }
-</pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "eventmill";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="eventmill" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DomainCommand",""]],"trait":[["HandleCommand",""]],"type":[["EventOf",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["DomainCommand",""]],"trait":[["HandleCommand",""]],"type":[["EventOf",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"derive":[["AggregateType",""],["EventType",""]]});
+window.SIDEBAR_ITEMS = {"derive":[["AggregateType",""],["EventType",""]]};

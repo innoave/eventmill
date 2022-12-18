@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CoreError",""]],"struct":[["Core",""]],"trait":[["DispatchCommand",""],["DispatchEvent",""]],"type":[["CoreDispatchError",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["CoreError",""]],"struct":[["Core",""],["Eventmill",""]],"trait":[["DispatchCommand",""],["DispatchEvent",""]],"type":[["CoreDispatchError",""]]};

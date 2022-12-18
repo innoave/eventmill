@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["ReceiveEvent",""]]});
+window.SIDEBAR_ITEMS = {"trait":[["ReceiveEvent",""]]};

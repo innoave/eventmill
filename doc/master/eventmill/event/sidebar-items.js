@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["wrap_events",""],["wrap_events_with_metadata",""]],"struct":[["DomainEvent",""],["DomainEventView",""],["NewEvent",""],["Sequence",""]],"trait":[["EventType",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["wrap_events",""],["wrap_events_with_metadata",""]],"struct":[["DomainEvent",""],["DomainEventView",""],["NewEvent",""],["Sequence",""]],"trait":[["EventType",""]]};

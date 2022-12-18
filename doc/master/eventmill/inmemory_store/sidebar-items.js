@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Error",""]],"struct":[["InMemoryStore",""]],"type":[["InMemoryStoreError",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Error",""]],"struct":[["InMemoryStore",""]],"type":[["InMemoryStoreError",""]]};
