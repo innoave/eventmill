@@ -1,14 +1,7 @@
 use eventmill_derive::AggregateType;
 
 #[derive(AggregateType, Debug)]
-pub struct Turtle {
-    id: String,
-    x: f32,
-    y: f32,
-    direction: f32,
-    speed: f32,
-    pen: bool,
-}
+pub struct Turtle {}
 
 #[test]
 fn main() {

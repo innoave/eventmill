@@ -1,7 +1,6 @@
 use crate::helpers::find_attribute;
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::export::ToTokens;
+use quote::{quote, ToTokens};
 use syn::{DataEnum, DataStruct, DataUnion, DeriveInput, Fields};
 
 pub fn derive_event_type_for_enum(ast: &DeriveInput, enum_data: &DataEnum) -> TokenStream {
