@@ -80,8 +80,6 @@ mod domain_event {
     #[derive(Debug)]
     struct Turtle {
         id: u32,
-        pos_x: i32,
-        pos_y: i32,
     }
 
     impl WithAggregateId for Turtle {
@@ -238,8 +236,6 @@ mod domain_event_view {
     #[derive(Debug)]
     struct Turtle {
         id: u32,
-        pos_x: i32,
-        pos_y: i32,
     }
 
     impl WithAggregateId for Turtle {
@@ -279,8 +275,6 @@ mod new_event {
     #[derive(Debug)]
     struct Turtle {
         id: u32,
-        pos_x: i32,
-        pos_y: i32,
     }
 
     impl WithAggregateId for Turtle {

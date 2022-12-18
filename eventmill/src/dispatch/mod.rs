@@ -4,6 +4,7 @@ use crate::aggregate::{
 use crate::command::{DomainCommand, HandleCommand};
 use crate::event::{wrap_events, DomainEvent, EventType, Sequence};
 use crate::store::{EventSink, EventSource};
+use crate::ReceiveEvent;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
@@ -136,6 +137,30 @@ where
             .map_err(CoreError::ReadEventsFailed)?;
 
         Ok(aggregate)
+    }
+}
+
+#[allow(missing_debug_implementations)]
+pub struct Eventmill<E, A, S> {
+    core: Core<S>,
+    event_handlers: Vec<Box<dyn ReceiveEvent<E, A>>>,
+}
+
+impl<E, A, S> Eventmill<E, A, S>
+where
+    A: WithAggregateId,
+{
+    pub fn new(event_store: S) -> Self {
+        let core = Core::new(event_store);
+        Self {
+            core,
+            event_handlers: Vec::new(),
+        }
+    }
+
+    pub fn with_event_handler(mut self, event_handler: impl ReceiveEvent<E, A> + 'static) -> Self {
+        self.event_handlers.push(Box::new(event_handler));
+        self
     }
 }
 
