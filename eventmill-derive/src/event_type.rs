@@ -33,7 +33,7 @@ pub fn derive_event_type_for_enum(ast: &DeriveInput, enum_data: &DataEnum) -> To
                         .map(|p| p.value().ident.as_ref())
                         .collect::<Vec<_>>();
                     quote! {
-                        #tname::#vname( #(_#field_names,)* ) => #evtype,
+                        #tname::#vname( #(_ #field_names,)* ) => #evtype,
                     }
                 }
                 Fields::Named(ref fields) => {

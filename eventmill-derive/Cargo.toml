@@ -13,7 +13,7 @@ documentation = "https://docs.rs/eventmill_derive"
 repository = "https://github.com/innoave/eventmill/tree/master/eventmill-derive"
 readme = "README.md"
 
-edition = "2018"
+edition = "2021"
 
 [lib]
 proc-macro = true

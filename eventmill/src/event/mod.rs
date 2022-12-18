@@ -179,7 +179,7 @@ where
 }
 
 /// implement PartialEq without requiring type parameter A to implement PartialEq
-impl<'a, E, A> PartialEq for DomainEventView<'a, E, A>
+impl<E, A> PartialEq for DomainEventView<'_, E, A>
 where
     E: PartialEq,
     A: WithAggregateId,
@@ -194,7 +194,7 @@ where
 }
 
 /// implement Clone without requiring type parameter A to implement Clone
-impl<'a, E, A> Clone for DomainEventView<'a, E, A>
+impl<E, A> Clone for DomainEventView<'_, E, A>
 where
     A: WithAggregateId,
 {

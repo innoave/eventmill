@@ -46,18 +46,26 @@
 #![deny(unsafe_code, unstable_features)]
 #![warn(
     bare_trait_objects,
+    deprecated,
+    explicit_outlives_requirements,
     missing_copy_implementations,
     missing_debug_implementations,
+    noop_method_call,
     rust_2018_idioms,
+    rust_2021_incompatible_closure_captures,
+    rust_2021_incompatible_or_patterns,
+    rust_2021_prefixes_incompatible_syntax,
+    rust_2021_prelude_collisions,
+    single_use_lifetimes,
     trivial_casts,
     trivial_numeric_casts,
-    unused_crate_dependencies,
-    unused_extern_crates,
     unused_import_braces,
-    unused_qualifications,
-    variant_size_differences
+    unused_lifetimes,
+    unused_qualifications
 )]
+#![warn(unused_crate_dependencies, unused_extern_crates)]
 //#![deny(missing_docs)]  //TODO uncomment when working on docs
+//#![warn(variant_size_differences)] // enable when working on performance
 
 pub mod aggregate;
 pub mod command;

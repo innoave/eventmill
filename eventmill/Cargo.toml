@@ -13,7 +13,7 @@ documentation = "https://docs.rs/eventmill"
 repository = "https://github.com/innoave/eventmill"
 readme = "../README.md"
 
-edition = "2018"
+edition = "2021"
 
 [features]
 derive = ["eventmill_derive"]
