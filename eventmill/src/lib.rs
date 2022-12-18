@@ -63,6 +63,7 @@ pub mod aggregate;
 pub mod command;
 pub mod dispatch;
 pub mod event;
+pub mod eventbus;
 pub mod inmemory_store;
 pub mod metadata;
 pub mod query;

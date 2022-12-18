@@ -21,6 +21,7 @@ derive = ["eventmill_derive"]
 [dependencies]
 eventmill_derive = { version = "0.3", optional = true, path = "../eventmill-derive" }
 chrono = { version = "0.4", features = ["serde"] }
+futures-core = "0.3"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 
