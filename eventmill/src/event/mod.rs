@@ -1,9 +1,10 @@
 use crate::aggregate::{AggregateIdOf, AggregateType, Generation, WithAggregateId};
 use crate::metadata::{Key, Metadata, Value};
-use chrono::{DateTime, Utc};
+use crate::time::DateTime;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Display};
 use std::iter::FromIterator;
+use std::time::SystemTime;
 
 pub trait EventType {
     fn event_type_version(&self) -> &str;
@@ -11,7 +12,9 @@ pub trait EventType {
     fn event_source(&self) -> &str;
 }
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(
+    Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
+)]
 pub struct Sequence(u64);
 
 impl Display for Sequence {
@@ -44,7 +47,7 @@ where
 {
     pub aggregate_id: AggregateIdOf<A>,
     pub sequence: Sequence,
-    pub time: DateTime<Utc>,
+    pub time: DateTime,
     pub data: E,
     pub metadata: Metadata,
 }
@@ -88,7 +91,7 @@ where
     pub fn new(
         aggregate_id: impl Into<AggregateIdOf<A>>,
         sequence: Sequence,
-        time: DateTime<Utc>,
+        time: DateTime,
         data: impl Into<E>,
     ) -> Self {
         Self {
@@ -105,7 +108,12 @@ where
         sequence: Sequence,
         data: impl Into<E>,
     ) -> Self {
-        Self::new(aggregate_id, sequence, Utc::now(), data)
+        Self::new(
+            aggregate_id,
+            sequence,
+            DateTime::from(SystemTime::now()),
+            data,
+        )
     }
 
     pub fn with_metadata<M>(mut self, metadata: M) -> Self
@@ -138,7 +146,7 @@ where
         self.sequence
     }
 
-    pub fn time(&self) -> DateTime<Utc> {
+    pub fn time(&self) -> DateTime {
         self.time
     }
 
@@ -167,7 +175,7 @@ where
 {
     pub aggregate_id: &'a AggregateIdOf<A>,
     pub sequence: Sequence,
-    pub time: DateTime<Utc>,
+    pub time: DateTime,
     pub data: &'a E,
     pub metadata: &'a Metadata,
 }
@@ -229,7 +237,7 @@ where
         self.sequence
     }
 
-    pub fn time(&self) -> DateTime<Utc> {
+    pub fn time(&self) -> DateTime {
         self.time
     }
 
@@ -321,7 +329,7 @@ where
         .map(move |NewEvent { aggregate_id, data }| DomainEvent {
             aggregate_id,
             sequence: current_sequence.next_value(),
-            time: Utc::now(),
+            time: DateTime::from(SystemTime::now()),
             data,
             metadata: Default::default(),
         })
@@ -340,7 +348,7 @@ where
         .map(move |NewEvent { aggregate_id, data }| DomainEvent {
             aggregate_id,
             sequence: current_sequence.next_value(),
-            time: Utc::now(),
+            time: DateTime::from(SystemTime::now()),
             data,
             metadata: metadata.clone(),
         })

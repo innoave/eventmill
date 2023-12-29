@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDate, Utc};
+use crate::time::{Date, DateTime};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::{self, Display};
@@ -15,8 +15,8 @@ pub enum Value {
     Float(f32),
     Double(f64),
     Boolean(bool),
-    Date(NaiveDate),
-    DateTime(DateTime<Utc>),
+    Date(Date),
+    DateTime(DateTime),
     List(Vec<Value>),
     Map(HashMap<String, Value>),
 }
@@ -57,14 +57,14 @@ impl From<bool> for Value {
     }
 }
 
-impl From<NaiveDate> for Value {
-    fn from(value: NaiveDate) -> Self {
+impl From<Date> for Value {
+    fn from(value: Date) -> Self {
         Value::Date(value)
     }
 }
 
-impl From<DateTime<Utc>> for Value {
-    fn from(value: DateTime<Utc>) -> Self {
+impl From<DateTime> for Value {
+    fn from(value: DateTime) -> Self {
         Value::DateTime(value)
     }
 }

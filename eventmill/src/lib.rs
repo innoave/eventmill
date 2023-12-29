@@ -76,6 +76,7 @@ pub mod metadata;
 pub mod query;
 pub mod store;
 pub mod test_support;
+pub mod time;
 
 //
 // Re-export of types and functions of the public API

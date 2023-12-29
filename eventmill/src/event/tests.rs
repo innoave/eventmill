@@ -71,6 +71,8 @@ mod sequence {
 
 mod domain_event {
     use super::*;
+    use crate::time::DateTime;
+    use std::time::SystemTime;
 
     #[derive(Debug, Clone, PartialEq)]
     struct Moved {
@@ -95,7 +97,7 @@ mod domain_event {
         let event: DomainEvent<_, Turtle> = DomainEvent {
             aggregate_id: 1,
             sequence: Default::default(),
-            time: Utc::now(),
+            time: DateTime::from(SystemTime::now()),
             data: Moved { velocity: 42 },
             metadata: Default::default(),
         };
@@ -112,7 +114,7 @@ mod domain_event {
             aggregate_id in any::<u32>(),
             sequence in any::<u64>(),
         ) {
-            let time = Utc::now();
+            let time = DateTime::from(SystemTime::now());
 
             let event1: DomainEvent<_, Turtle> = DomainEvent {
                 aggregate_id,
@@ -142,7 +144,7 @@ mod domain_event {
             aggregate_id in any::<u32>(),
             sequence in any::<u64>(),
         ) {
-            let time = Utc::now();
+            let time = DateTime::from(SystemTime::now());
 
             let event1: DomainEvent<_, Turtle> = DomainEvent {
                 aggregate_id,
@@ -172,7 +174,7 @@ mod domain_event {
             ),
             sequence in any::<u64>(),
         ) {
-            let time = Utc::now();
+            let time = DateTime::from(SystemTime::now());
 
             let event1: DomainEvent<_, Turtle> = DomainEvent {
                 aggregate_id: aggregate_id1,
@@ -202,7 +204,7 @@ mod domain_event {
                 |(seq1, seq2)| seq1 != seq2,
             ),
         ) {
-            let time = Utc::now();
+            let time = DateTime::from(SystemTime::now());
 
             let event1: DomainEvent<_, Turtle> = DomainEvent {
                 aggregate_id,
@@ -227,6 +229,8 @@ mod domain_event {
 
 mod domain_event_view {
     use super::*;
+    use crate::time::DateTime;
+    use std::time::SystemTime;
 
     #[derive(Debug, Clone, PartialEq)]
     struct Moved {
@@ -251,7 +255,7 @@ mod domain_event_view {
         let event: DomainEvent<_, Turtle> = DomainEvent {
             aggregate_id: 1,
             sequence: Default::default(),
-            time: Utc::now(),
+            time: DateTime::from(SystemTime::now()),
             data: Moved { velocity: 42 },
             metadata: Default::default(),
         };
@@ -362,7 +366,6 @@ mod new_event {
 
 mod wrap_events {
     use super::*;
-    use chrono::Utc;
     use std::u64;
 
     #[derive(Debug, PartialEq)]
@@ -485,9 +488,9 @@ mod wrap_events {
 
             let mut current_sequence = Sequence::default();
 
-            let start = Utc::now();
+            let start = DateTime::from(SystemTime::now());
             let domain_events = wrap_events(&mut current_sequence, new_events).collect::<Vec<DomainEvent<_, TestAggregate>>>();
-            let end = Utc::now();
+            let end = DateTime::from(SystemTime::now());
 
             domain_events.iter().for_each(|ev| {
                 assert!(ev.time >= start, "event.time is not greater or equal start time");
@@ -521,7 +524,7 @@ mod wrap_events {
 
 mod wrap_events_with_metadata {
     use super::*;
-    use chrono::Utc;
+    use crate::time::DateTime;
     use std::u64;
 
     #[derive(Debug, PartialEq)]
@@ -664,9 +667,9 @@ mod wrap_events_with_metadata {
                 ("agent".to_string(), Value::String("mozilla".to_string())),
             ].into_iter());
 
-            let start = Utc::now();
+            let start = DateTime::from(SystemTime::now());
             let domain_events = wrap_events_with_metadata(&mut current_sequence, &metadata, new_events).collect::<Vec<DomainEvent<_, TestAggregate>>>();
-            let end = Utc::now();
+            let end = DateTime::from(SystemTime::now());
 
             domain_events.iter().for_each(|ev| {
                 assert!(ev.time >= start, "event.time is not greater or equal start time");
