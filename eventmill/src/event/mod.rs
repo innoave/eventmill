@@ -11,14 +11,8 @@ pub trait EventType {
     fn event_source(&self) -> &str;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Sequence(u64);
-
-impl Default for Sequence {
-    fn default() -> Self {
-        Self(0)
-    }
-}
 
 impl Display for Sequence {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -118,7 +112,7 @@ where
     where
         M: IntoIterator<Item = (Key, Value)>,
     {
-        self.metadata = Metadata::from_iter(metadata.into_iter());
+        self.metadata = Metadata::from_iter(metadata);
         self
     }
 

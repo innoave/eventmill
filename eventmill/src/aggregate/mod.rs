@@ -4,14 +4,8 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Display};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Generation(u64);
-
-impl Default for Generation {
-    fn default() -> Self {
-        Self(0)
-    }
-}
 
 impl Display for Generation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -61,6 +55,7 @@ where
 {
     fn apply_event(&mut self, event: DomainEventView<'_, E, Self>);
 
+    #[allow(single_use_lifetimes)]
     fn apply_all_events<'a>(
         &mut self,
         events: impl IntoIterator<Item = DomainEventView<'a, E, Self>>,
