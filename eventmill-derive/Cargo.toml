@@ -1,19 +1,17 @@
 [package]
 name = "eventmill_derive"
 version = "0.3.0"
+edition = "2021"
 authors = ["haraldmaida"]
 license = "MIT/Apache-2.0"
 
 description = "Derive macros for convient implementation of some traits of the `eventmill` crate"
 
 keywords = ["event-sourcing", "cqrs", "aggregate", "ddd"]
-categories = ["architecture", "pattern"]
 
 documentation = "https://docs.rs/eventmill_derive"
-repository = "https://github.com/innoave/eventmill/tree/master/eventmill-derive"
+repository = "https://github.com/innoave/eventmill/tree/main/eventmill-derive"
 readme = "README.md"
-
-edition = "2021"
 
 [lib]
 proc-macro = true
