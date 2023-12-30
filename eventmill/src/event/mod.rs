@@ -47,6 +47,7 @@ where
 {
     pub aggregate_id: AggregateIdOf<A>,
     pub sequence: Sequence,
+    #[cfg_attr(feature = "time", serde(with = "time::serde::iso8601"))]
     pub time: DateTime,
     pub data: E,
     pub metadata: Metadata,
@@ -175,6 +176,7 @@ where
 {
     pub aggregate_id: &'a AggregateIdOf<A>,
     pub sequence: Sequence,
+    #[cfg_attr(feature = "time", serde(with = "time::serde::iso8601"))]
     pub time: DateTime,
     pub data: &'a E,
     pub metadata: &'a Metadata,
