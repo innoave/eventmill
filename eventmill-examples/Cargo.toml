@@ -14,6 +14,11 @@ readme = "../README.md"
 
 publish = false
 
+[features]
+default = ["chrono"]
+chrono = ["eventmill/chrono"]
+time = ["eventmill/time"]
+
 [dependencies]
 
 [dev-dependencies]
@@ -22,9 +27,8 @@ derive_more = "0.99"
 #enum_dispatch = "0.3"
 #typetag = "0.1"
 
-chrono = { version = "0.4", features = ["serde"] }
-serde = { version = "1", features = ["derive"] }
 bigdecimal = { version = "0.4", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 
 [[example]]

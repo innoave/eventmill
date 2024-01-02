@@ -1,6 +1,9 @@
-#[cfg(feature = "chrono")]
+#[cfg(feature = "time")]
+use chrono as _;
+
+#[cfg(all(feature = "chrono", not(feature = "time")))]
 pub type Date = chrono::NaiveDate;
-#[cfg(feature = "chrono")]
+#[cfg(all(feature = "chrono", not(feature = "time")))]
 pub type DateTime = chrono::DateTime<chrono::Utc>;
 
 #[cfg(feature = "time")]
