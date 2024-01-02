@@ -1,4 +1,4 @@
-#[cfg(feature = "time")]
+#[cfg(all(feature = "time", feature = "chrono"))]
 use chrono as _;
 
 #[cfg(all(feature = "chrono", not(feature = "time")))]
